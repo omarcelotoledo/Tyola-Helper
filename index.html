@@ -185,6 +185,12 @@ body.typing #caption{bottom:auto;top:calc(124px + env(safe-area-inset-top))}
   background:#18171d;box-shadow:inset 0 0 0 3px #46434f}
 body.iphone8{background:#05020d}
 body.iphone8 #stage{border-radius:0;box-shadow:0 0 0 1px rgba(214,190,255,.18)}
+#care{position:absolute;inset:0;z-index:16;display:none;place-items:center;background:rgba(10,2,30,.7);padding:16px}
+#care.open{display:grid}
+#care .card{max-width:520px;background:linear-gradient(160deg,#5a2bc8,#2a0d6e);border:1px solid rgba(214,190,255,.4);border-radius:22px;padding:22px;text-align:center;box-shadow:0 10px 50px rgba(160,90,255,.5)}
+#care h2{font-size:24px;margin-bottom:10px}
+#care p{font-size:16px;line-height:1.5;margin-bottom:10px;color:#f0e8ff}
+#care button{border:0;border-radius:12px;padding:12px 28px;font-weight:800;font-size:16px;background:#fff;color:#3a12a0;margin-top:6px}
 #drawing{position:absolute;inset:0;z-index:7;display:none;place-items:center;background:rgba(10,2,30,.55);padding:14px}
 #drawing.open{display:grid}
 #drawing .frame{background:#fff;border-radius:18px;padding:12px;box-shadow:0 10px 50px rgba(120,60,255,.6);max-width:min(560px,92%);width:100%;text-align:center;
@@ -222,6 +228,12 @@ body.iphone8 #stage{border-radius:0;box-shadow:0 0 0 1px rgba(214,190,255,.18)}
   <div id="fxGrid"><div id="fxSun"></div><div id="fxFloor"><div id="fxFloorIn"></div></div></div>
   <div id="fxBubbles"></div>
   <div id="timer"></div>
+  <div id="care"><div class="card">
+    <h2>💜 You are not alone</h2>
+    <p>Please talk to a grown-up you trust <b>right now</b>: your mom, dad, a family member or a teacher.</p>
+    <p>In Brazil, <b>CVV</b> listens any time, for free: call <b>188</b> or visit <b>cvv.org.br</b>.<br>In the US: call or text <b>988</b>.</p>
+    <button id="careOk" type="button">Okay</button>
+  </div></div>
   <div id="drawing"><div class="frame"><div id="drawImg"></div><div id="drawCap"></div>
     <div class="row"><button id="drawClose" type="button">Close</button></div></div></div>
   <svg id="face" viewBox="0 0 667 375" preserveAspectRatio="none">
@@ -342,6 +354,7 @@ body.iphone8 #stage{border-radius:0;box-shadow:0 0 0 1px rgba(214,190,255,.18)}
               <g id="galaxy" fill="#ffffff"></g>
               <circle class="pupil" r="11" fill="#ffffff" opacity=".9"/>
             </g>
+            <g id="dizzy" opacity="0"><circle r="40" fill="#f8f4ff"/><path id="dizzySpiral" fill="none" stroke="#5a2bc8" stroke-width="6" stroke-linecap="round"/></g>
             <path id="heart" fill="#ff7bd0" opacity="0" d="M0 18 C-30 -2 -26 -26 -10 -26 C-3 -26 0 -20 0 -16 C0 -20 3 -26 10 -26 C26 -26 30 -2 0 18 Z"/>
             <circle id="dotGlint" cx="-14" cy="-22" r="10" fill="#fff" opacity="0"/>
             <path id="star" fill="#fff" transform="translate(-14 -22)"
@@ -372,6 +385,10 @@ body.iphone8 #stage{border-radius:0;box-shadow:0 0 0 1px rgba(214,190,255,.18)}
     <!-- BOCA -->
     <g id="mouthAnchor" transform="translate(331 252)">
       <path id="mouth" d="M-22 0 L22 0" fill="none" stroke="#f6f0ff" stroke-width="7" stroke-linecap="round"/>
+      <g id="blush" opacity="0"><ellipse cx="-78" cy="-8" rx="24" ry="11" fill="#ff7bd0" opacity=".5"/><ellipse cx="78" cy="-8" rx="24" ry="11" fill="#ff7bd0" opacity=".5"/></g>
+      <g id="notes" fill="#f6f0ff" font-family="-apple-system,system-ui,sans-serif" font-weight="900" opacity="0">
+        <text class="note" x="40" y="-20" font-size="30">♪</text><text class="note" x="70" y="-40" font-size="38">♫</text><text class="note" x="20" y="-50" font-size="26">♪</text>
+      </g>
       <ellipse id="mouthO" cx="0" cy="0" rx="10" ry="13" fill="none" stroke="#f6f0ff" stroke-width="6" opacity="0"/>
       <path id="mouthWave" d="" fill="#f6f0ff" stroke="#f6f0ff" stroke-width="2" stroke-linejoin="round" opacity="0"/>
     </g>
@@ -411,12 +428,13 @@ body.iphone8 #stage{border-radius:0;box-shadow:0 0 0 1px rgba(214,190,255,.18)}
   <div id="shade"></div>
   <aside id="panel">
     <h2>Tyola</h2>
-    <div class="sub">Settings · say it “Tie-oh-la” · <b id="verLabel">v1.3</b></div>
+    <div class="sub">Settings · say it “Tie-oh-la” · <b id="verLabel">v1.4</b></div>
 
     <h3>Show time</h3>
     <button class="btn present" id="bPresent" type="button">▶ Presentation mode</button>
     <div class="hint">Tyola introduces herself and shows off everything she can do. Tap the screen to stop.</div>
     <button class="btn" id="bHelp" type="button" style="width:100%;margin-top:6px">❓ How to talk to Tyola (microphone)</button>
+    <button class="btn" id="bSadMode" type="button" style="width:100%;margin-top:6px">💜 I'm feeling down</button>
 
     <h3>Tyola+ (AI)</h3>
     <div class="hint" style="margin-top:0">Tap the <b>+</b> on the top bar to turn Tyola+ on or off. When it's off, Tyola works like a smart speaker: ready-made answers, timer, time, dance, walk and PC commands.</div>
@@ -501,6 +519,10 @@ body.iphone8 #stage{border-radius:0;box-shadow:0 0 0 1px rgba(214,190,255,.18)}
       <option value="sonolenta">😴 Sleepy: half-closed eye, naps fast</option>
       <option value="agitada">⚡ Hyper: looks everywhere, never sleeps</option>
       <option value="rabugenta">😤 Grumpy: frowny face (but cute)</option>
+      <option value="timida">🙈 Shy: blushes, talks softly</option>
+      <option value="pirata">🏴‍☠️ Pirate: arrr, matey!</option>
+      <option value="cientista">🔬 Scientist: loves fun facts</option>
+      <option value="dramatica">🎭 Drama queen: everything is HUGE</option>
       <option value="custom">✍️ Write your own…</option>
     </select>
     <div id="customPersonaWrap" style="display:none">
@@ -509,7 +531,7 @@ body.iphone8 #stage{border-radius:0;box-shadow:0 0 0 1px rgba(214,190,255,.18)}
       <label for="sCustomFace">Resting face</label>
       <select id="sCustomFace">
         <option value="alegre">Smiling</option><option value="calma">Relaxed</option><option value="sonolenta">Sleepy</option>
-        <option value="agitada">Wide awake</option><option value="rabugenta">Grumpy</option>
+        <option value="agitada">Wide awake</option><option value="rabugenta">Grumpy</option><option value="timida">Shy</option><option value="pirata">Pirate</option>
       </select>
     </div>
     <div class="hint">Changes her resting face and how Tyola+ talks.</div>
@@ -551,6 +573,8 @@ body.iphone8 #stage{border-radius:0;box-shadow:0 0 0 1px rgba(214,190,255,.18)}
     <label for="sWalk">Walk length: <b id="walkVal"></b></label>
     <input id="sWalk" type="range" min="5" max="60" step="5">
     <div class="hint">She counts 3, 2, 1, “Go!”: start the mBot on “Go!”. Saying “let's go for a walk” works too. Tap the screen to stop.</div>
+    <button class="btn" id="bRide" type="button" style="width:100%;margin-top:8px">📳 Ride mode (motion sensor)</button>
+    <div class="hint">With the phone on the mBot, she feels the ride: looks into the turns, gets excited when the car moves, jumps on bumps, and the road only rolls while the car is really moving. Shake the phone to make her dizzy! Works on the website only (phone or tablet).</div>
 
     <h3>Try her faces</h3>
     <div class="row">
@@ -568,6 +592,13 @@ body.iphone8 #stage{border-radius:0;box-shadow:0 0 0 1px rgba(214,190,255,.18)}
       <button data-test="sleep">Sleep</button>
       <button data-test="timer">Timer 10s</button>
       <button data-test="listen">Listen</button>
+      <button data-test="dizzy">Dizzy</button>
+      <button data-test="yawn">Yawn</button>
+      <button data-test="hum">Hum</button>
+      <button data-test="spin">Spin</button>
+      <button data-test="blush">Blush</button>
+      <button data-test="hug">Hug</button>
+      <button data-test="breathe">Breathe</button>
     </div>
 
     <h3>Screen</h3>
@@ -660,8 +691,10 @@ function memForget(){ MEM = {facts:[], images:[], history:[], lastVersion:MEM.la
 /* ================== VERSÃO E HISTÓRICO DE UPDATES ==================
    A Tyola conhece as próprias atualizações (funciona com ou sem a Tyola+).
    A cada versão nova, coloque um item NO TOPO desta lista. */
-const VERSION = '1.3';
+const VERSION = '1.4';
 const CHANGELOG = [
+  {v:'1.4', en:['a comfort mode: when you feel sad I can give you a hug, a joke or a breathing game','ride mode: I feel the mBot moving with the motion sensor, and shaking me makes me dizzy','little animations on my own, like yawning, humming and spinning my wrench','four new personalities: shy, pirate, scientist and drama queen','more things I know without AI, like math, fun facts and stories'],
+            pt:['um modo consolo: quando você fica triste eu dou um abraço, conto uma piada ou faço um jogo de respirar','modo carrinho: eu sinto o mBot andando pelo sensor de movimento, e se me chacoalhar eu fico tonta','animaçõezinhas sozinha, tipo bocejar, cantarolar e girar minha chave','quatro personalidades novas: tímida, pirata, cientista e dramática','mais coisas que eu sei sem IA, tipo contas, curiosidades e historinhas']},
   {v:'1.3', en:['real AI pictures from Pollinations on my website, even with Tyola plus off','much prettier sticker-style drawings inside the Claude app'],
             pt:['imagens de IA de verdade do Pollinations no meu site, até com a Tyola mais desligada','desenhos estilo figurinha bem mais bonitos dentro do app do Claude']},
   {v:'1.2', en:['a memory: with Tyola plus on, I remember what you tell me, even after closing the app',
@@ -687,7 +720,7 @@ function describeUpdate(i){
 const DEFAULTS = {
   provider:'app', key:'', model:'quick', custom:'',
   base:'https://models.github.ai/inference/chat/completions',
-  lang:'en-US', rate:1.05, pitch:1.3, mic:true, voice:true, bar:true, sfx:true, walkSecs:15, input:'auto', screen:'full', theme:'roxo', eye:'roxo', glint:'estrela', persona:'alegre', linkOn:false, linkCode:'', eyeStyle:'classic', bg:'aurora', aiOn:false, customPersona:'', customFace:'alegre', voiceName:'', v:0, picEngine:'auto'
+  lang:'en-US', rate:1.05, pitch:1.3, mic:true, voice:true, bar:true, sfx:true, walkSecs:15, input:'auto', screen:'full', theme:'roxo', eye:'roxo', glint:'estrela', persona:'alegre', linkOn:false, linkCode:'', eyeStyle:'classic', bg:'aurora', aiOn:false, customPersona:'', customFace:'alegre', voiceName:'', v:0, picEngine:'auto', ride:false
 };
 const MODELS = {
   app:[
@@ -790,7 +823,7 @@ const st = {
   blinkAt:0, blinkStart:-1, nextBlink:2500,
   busy:false, listening:false
 };
-const cur = { brow:0, browY:0, browTilt:0, browCurve:0, pupil:1, conf:0, pop:0, walk:0, love:0, surp:0, topL:100, topR:100, bot:110, curve:0, sleep:1, sad:0, wrench:1, mic:0, mouse:0, smile:0, mw:22, talk:0, amp:0, ampT:0, eyeS:1 };
+const cur = { blush:0, notes:0, dizzy:0, yawn:0, hug:0, brathe:1, brow:0, browY:0, browTilt:0, browCurve:0, pupil:1, conf:0, pop:0, walk:0, love:0, surp:0, topL:100, topR:100, bot:110, curve:0, sleep:1, sad:0, wrench:1, mic:0, mouse:0, smile:0, mw:22, talk:0, amp:0, ampT:0, eyeS:1 };
 const MOODS = {
   sleep: {topL:100, topR:100, bot:110, curve:0,  sleep:1, sad:0, smile:0,   mw:22},
   normal:{topL:-110,topR:-110,bot:110, curve:0,  sleep:0, sad:0, smile:0,   mw:22},  // ajustado pela personalidade
@@ -799,6 +832,10 @@ const MOODS = {
   think: {topL:-62, topR:-62, bot:110, curve:0,  sleep:0, sad:0, smile:-.15,mw:14},
   listen:{topL:-110,topR:-110,bot:110, curve:0,  sleep:0, sad:0, smile:.25, mw:18},
   surprised:{topL:-110,topR:-110,bot:110,curve:0, sleep:0, sad:0, smile:0,   mw:10},
+  dizzy: {topL:-110,topR:-110,bot:110, curve:0,  sleep:0, sad:0, smile:-.1, mw:22},
+  yawn:  {topL:-24, topR:-24, bot:110, curve:0,  sleep:0, sad:0, smile:0,   mw:10},
+  sneeze:{topL:30,  topR:30,  bot:110, curve:0,  sleep:0, sad:0, smile:-.3, mw:12},
+  shy:   {topL:-72, topR:-72, bot:60,  curve:18, sleep:0, sad:0, smile:.5,  mw:14},
   love:  {topL:-110,topR:-110,bot:62,  curve:22, sleep:0, sad:0, smile:1,   mw:32},
   angry: {topL:-30, topR:-96, bot:110, curve:0,  sleep:0, sad:0, smile:-.7, mw:24},
   confused:{topL:-110,topR:-58,bot:96, curve:0, sleep:0, sad:0, smile:-.25,mw:16}
@@ -814,8 +851,27 @@ const PERSONAS = {
   agitada:  {normal:{topL:-110,topR:-110,smile:.3,mw:24},  look:[450,1100],  blink:[1500,3000], sleep:240000,
              ai:'Your personality is hyper and energetic: you talk fast, love action and get excited easily.'},
   rabugenta:{normal:{topL:-38,topR:-110,smile:-.5,mw:20},  look:[1800,3500], blink:[2600,4800], sleep:90000,
-             ai:'Your personality is grumpy in a funny, harmless way: you complain a little and are sarcastic, but you always help in the end and are secretly sweet.'}
+             ai:'Your personality is grumpy in a funny, harmless way: you complain a little and are sarcastic, but you always help in the end and are secretly sweet.'},
+  timida:   {normal:{topL:-74,topR:-74,smile:.2,mw:14},    look:[2600,4500], blink:[2000,3800], sleep:90000, lookBias:.4,
+             idle:['blush','blush','curious','hum'], flavor:{en:['Um... ','Oh, um, '], pt:['Hã... ','Ah, é... ']},
+             ai:'Your personality is shy and sweet: you speak softly, get a little flustered, say "um" sometimes, but you are very kind.'},
+  pirata:   {normal:{topL:-110,topR:-64,smile:.4,mw:28},   look:[1500,2800], blink:[2400,4200], sleep:90000,
+             idle:['hum','hum','spin','curious'], flavor:{en:['Arrr! ','Ahoy! '], pt:['Arrr! ','Ahoy, marujo! ']},
+             ai:'Your personality is a friendly pirate robot: you say "arrr" and "ahoy", call people "matey", and love treasure and the sea.'},
+  cientista:{normal:{topL:-110,topR:-110,smile:.2,mw:18},  look:[900,1900],  blink:[2200,4000], sleep:120000,
+             idle:['curious','curious','hum','spin'], flavor:{en:['Fascinating! ','Interesting! '], pt:['Fascinante! ','Interessante! ']},
+             ai:'Your personality is a curious little scientist: you love fun facts, say "fascinating", and explain things in a simple, excited way.'},
+  dramatica:{normal:{topL:-110,topR:-110,smile:.35,mw:26}, look:[1200,2400], blink:[2000,3600], sleep:90000,
+             idle:['sneeze','curious','spin','hum'], flavor:{en:['Oh my gosh! ','Darling, '], pt:['Ai, meu Deus! ','Querido, ']},
+             ai:'Your personality is dramatic and theatrical: everything is the BEST or the WORST thing ever, you gasp a lot and love a big reaction, but you are kind.'}
 };
+PERSONAS.alegre.idle = ['hum','spin','curious','blush'];
+PERSONAS.calma.idle = ['hum','hum','yawn'];
+PERSONAS.sonolenta.idle = ['yawn','yawn','yawn','hum'];
+PERSONAS.agitada.idle = ['spin','curious','spin','sneeze','hum'];
+PERSONAS.rabugenta.idle = ['yawn','spin','curious'];
+// intervalo entre animações sozinha (ms)
+const IDLE_GAP = {agitada:[7000,14000], calma:[35000,60000], sonolenta:[18000,30000]};
 const P = () => S.persona==='custom'
   ? {...(PERSONAS[S.customFace]||PERSONAS.alegre), ai: S.customPersona.trim() ? 'Your personality, as described by Theo: ' + S.customPersona.trim().slice(0,400) + '. Stay in this character, but keep answers short and kind.' : PERSONAS.alegre.ai}
   : (PERSONAS[S.persona] || PERSONAS.alegre);
@@ -830,6 +886,7 @@ const IRIS = {
   // espiral
   let d = ''; for (let a=0; a<Math.PI*7; a+=0.15){ const r = 2 + a*2.0; const x=(Math.cos(a)*r).toFixed(1), y=(Math.sin(a)*r*1.2).toFixed(1); d += (d?' L':'M') + x + ' ' + y; }
   document.getElementById('spiral').setAttribute('d', d);
+  document.getElementById('dizzySpiral').setAttribute('d', d);
   // galáxia
   const g = document.getElementById('galaxy'); let h = '';
   for (let i=0;i<46;i++){ const arm = i%2, a = i*0.32 + arm*Math.PI, r = 4 + (i/46)*40; h += `<circle cx="${(Math.cos(a)*r).toFixed(1)}" cy="${(Math.sin(a)*r*1.2).toFixed(1)}" r="${(0.8+Math.random()*1.8).toFixed(1)}" opacity="${(0.4+Math.random()*.6).toFixed(2)}"/>`; }
@@ -858,7 +915,7 @@ function applyLook(){
 
 // sobrancelha (só aparece nas expressões fortes) e tamanho da pupila
 const BROWS = {};  // v1.2: sobrancelha removida
-const PUPIL = {surprised:.6, love:1.2, happy:1.12, listen:1.15, angry:.78, sad:1.1, think:.9, confused:.85};
+const PUPIL = {shy:.9, sneeze:.6, surprised:.6, love:1.2, happy:1.12, listen:1.15, angry:.78, sad:1.1, think:.9, confused:.85};
 
 /* ================== ELEMENTOS SVG ================== */
 const E = {
@@ -866,7 +923,7 @@ const E = {
   chevron:$('#chevron'), sleepLid:$('#sleepLid'), tear:$('#tear'),
   wrench:$('#wrench'), mic:$('#mic'), mouse:$('#mouse'), mouseMove:$('#mouseMove'), mouseClick:$('#mouseClick'),
   micRings:$('#micRings'), mouth:$('#mouth'), wave:$('#mouthWave'), face:$('#face'),
-  heart:$('#heart'), dotGlint:$('#dotGlint'), brow:$('#brow'), qmark:$('#qmark'), spiral:$('#spiral'), rings:$('#rings'), galaxy:$('#galaxy'), hearts:$('#hearts'), zzz:$('#zzz'), mouthO:$('#mouthO'), sparkles:$('#sparkles'),
+  heart:$('#heart'), dotGlint:$('#dotGlint'), blush:$('#blush'), notes:$('#notes'), dizzy:$('#dizzy'), dizzySpiral:$('#dizzySpiral'), brow:$('#brow'), qmark:$('#qmark'), spiral:$('#spiral'), rings:$('#rings'), galaxy:$('#galaxy'), hearts:$('#hearts'), zzz:$('#zzz'), mouthO:$('#mouthO'), sparkles:$('#sparkles'),
   road:$('#road'), roadDashes:$('#roadDashes'), speedLines:$('#speedLines'),
   toolA:$('#toolAnchor'), eyeA:$('#eyeAnchor'), mouthA:$('#mouthAnchor')
 };
@@ -891,6 +948,8 @@ for (let i=0;i<4;i++){
 }
 const RINGS = [0,1,2].map(()=>{ const c=document.createElementNS('http://www.w3.org/2000/svg','circle'); c.setAttribute('cx',0); c.setAttribute('cy',-40); E.micRings.appendChild(c); return c; });
 const PUPILS = [...document.querySelectorAll('#iris .pupil')];
+const NOTES = [...document.querySelectorAll('#notes .note')];
+st.nextIdle = 0; st.blushUntil = 0; st.humUntil = 0; st.hugUntil = 0; st.spinStart = 0; st.breath = null;
 const LID_EDGES = [...document.querySelectorAll('.lidEdge')];
 let lastInteract = performance.now(), presenting = false, lastMoodAttr = '';
 st.danceUntil = 0; st.walkUntil = 0;
@@ -926,14 +985,37 @@ function frame(now){
   if (st.mood !== st.lastMoodPop){ st.lastMoodPop = st.mood; cur.pop = 1; }
   cur.pop = Math.max(0, cur.pop - dt*2.2);
   cur.love   = lerp(cur.love,   st.mood==='love'?1:0, k);
-  cur.surp   = lerp(cur.surp,   st.mood==='surprised'?1:0, kf);
+  cur.surp   = lerp(cur.surp,   (st.mood==='surprised'||st.mood==='yawn')?1:0, kf);
   if (st.mood !== lastMoodAttr){ lastMoodAttr = st.mood; document.body.dataset.mood = st.mood; }
   document.body.classList.toggle('creating', st.tool==='mouse');
   // dormir depois de 90 s parada
   if (booted && !presenting && !(now < st.walkUntil) && !st.busy && !st.talking && !st.listening && !timerEnd && st.mood==='normal' && now-lastInteract>P().sleep) st.mood='sleep';
 
+  // animações sozinha (quando ninguém está mexendo nela)
+  if (booted && !presenting && !st.busy && !st.talking && !st.listening && st.mood==='normal' && !(now < st.walkUntil) && !rideMoving() && now > st.nextIdle){
+    if (st.nextIdle) idleAnim(pick(P().idle || ['hum','spin','curious']));
+    const g = IDLE_GAP[S.persona] || [20000,38000]; st.nextIdle = now + g[0] + Math.random()*(g[1]-g[0]);
+  }
+  cur.blush = lerp(cur.blush, (st.mood==='shy' || st.mood==='love' || now < st.blushUntil || now < st.hugUntil) ? 1 : 0, k);
+  cur.notes = lerp(cur.notes, now < st.humUntil ? 1 : 0, k);
+  cur.dizzy = lerp(cur.dizzy, st.mood==='dizzy' ? 1 : 0, kf);
+  cur.yawn  = lerp(cur.yawn,  st.mood==='yawn' ? 1 : 0, k*.7);
+  cur.hug   = lerp(cur.hug,   now < st.hugUntil ? 1 : 0, k*.8);
+  setA(E.blush, 'opacity', cur.blush.toFixed(2));
+  setA(E.notes, 'opacity', cur.notes.toFixed(2));
+  if (cur.notes > .02) NOTES.forEach((n,i)=>{ const p=(t*.7+i/3)%1; setA(n,'transform',`translate(${(Math.sin(t*3+i)*8).toFixed(1)} ${(-p*60).toFixed(1)})`); setA(n,'opacity',(p<.7?1:(1-p)*3.3).toFixed(2)); });
+  setA(E.dizzy, 'opacity', cur.dizzy.toFixed(2));
+  if (cur.dizzy > .02) setA(E.dizzySpiral, 'transform', `rotate(${((t*400)%360).toFixed(0)})`);
+  // respiração guiada: o olho cresce (inspira) e encolhe (expira)
+  let breathScale = 1;
+  if (st.breath){ const e = (now - st.breath.t0)/1000, c = e % 10; breathScale = c<4 ? 1+.24*(c/4) : c<5 ? 1.24 : c<9 ? 1.24-.38*((c-5)/4) : .86; }
+  cur.brathe = lerp(cur.brathe, breathScale, Math.min(1, dt*6));
+  // giroscópio (modo carrinho); sem dados novos do sensor, o movimento vai sumindo
+  if (MOTION.on && now - MOTION.lastEvent > 400){ MOTION.level *= Math.pow(.05, dt); MOTION.turn *= Math.pow(.05, dt); }
+  if (MOTION.on && S.ride && MOTION.turn){ st.lookT.x = Math.max(-1, Math.min(1, MOTION.turn)); st.lookHold = now + 400; }
+
   // passeio (mBot)
-  const walking = now < st.walkUntil;
+  const walking = now < st.walkUntil || rideMoving();
   cur.walk = lerp(cur.walk, walking?1:0, k);
   if (cur.walk > .01){
     setA(E.road, 'opacity', cur.walk.toFixed(2));
@@ -941,13 +1023,16 @@ function frame(now){
     DASHES.forEach((r,i)=>{ setA(r,'x',(-260 + i*90 - off).toFixed(1)); setA(r,'y', 352); });
     SPEEDS.forEach(sp=>{ const p=(t*1.6+sp.ph)%1; const x=760-p*1100; setA(sp.el,'x1',x.toFixed(1)); setA(sp.el,'x2',(x+sp.len).toFixed(1)); setA(sp.el,'y1',sp.y); setA(sp.el,'y2',sp.y); setA(sp.el,'opacity',(Math.sin(p*Math.PI)).toFixed(2)); });
   } else setA(E.road, 'opacity', 0);
-  if (walking){ st.lookT.x = 0.75; st.lookT.y = 0.05; }
+  if (walking && !(MOTION.on && S.ride)){ st.lookT.x = 0.75; st.lookT.y = 0.05; }
+  if (P().lookBias && st.mood==='normal') st.lookT.y = Math.max(st.lookT.y, P().lookBias);
   // respirar + dançar
   const dancing = now < st.danceUntil;
   const dz = dancing ? 1 : 0;
   const br = Math.sin(t*1.3)*2.5 + cur.walk*Math.sin(t*16)*3;
-  setA(E.toolA, 'transform', `translate(${(190 + dz*Math.sin(t*7)*18).toFixed(1)} ${(182 + br - dz*Math.abs(Math.sin(t*10))*24).toFixed(1)}) rotate(${(dz*Math.sin(t*7)*14).toFixed(1)})`);
-  setA(E.eyeA, 'transform', `translate(${(472 + dz*Math.sin(t*7+1.5)*16).toFixed(1)} ${(168 - br*.6 - dz*Math.abs(Math.sin(t*10+1))*20).toFixed(1)}) rotate(${(dz*Math.sin(t*7+1)*10).toFixed(1)})`);
+  const spin = st.spinStart ? Math.min(1, (now - st.spinStart)/900) : 1; const spinA = spin<1 ? 360*(1-Math.pow(1-spin,3)) : 0;
+  const hx = cur.hug*42, hr = cur.hug*24;
+  setA(E.toolA, 'transform', `translate(${(190 + hx + dz*Math.sin(t*7)*18).toFixed(1)} ${(182 + br - dz*Math.abs(Math.sin(t*10))*24).toFixed(1)}) rotate(${(spinA + hr + dz*Math.sin(t*7)*14).toFixed(1)})`);
+  setA(E.eyeA, 'transform', `translate(${(472 - cur.hug*26 + dz*Math.sin(t*7+1.5)*16).toFixed(1)} ${(168 - br*.6 - dz*Math.abs(Math.sin(t*10+1))*20).toFixed(1)}) rotate(${(dz*Math.sin(t*7+1)*10).toFixed(1)})`);
   setA(E.mouthA, 'transform', `translate(${(331 + dz*Math.sin(t*7)*8).toFixed(1)} ${(252 + br*.4).toFixed(1)})`);
   setA(E.heart, 'opacity', cur.love.toFixed(2));
   setA(E.heart, 'transform', `scale(${(1 + Math.sin(t*8)*.08*cur.love).toFixed(3)})`);
@@ -1002,7 +1087,8 @@ function frame(now){
   }
   // "pulinho" de desenho animado quando muda de expressão
   const pop = Math.sin(cur.pop*Math.PI*3) * cur.pop * .07;
-  setA(E.eyeScale, 'transform', `scale(${(cur.eyeS*(1-pop)).toFixed(3)} ${(Math.max(.02,sy)*cur.eyeS*(1+pop)).toFixed(3)})`);
+  const es = cur.eyeS * cur.brathe;
+  setA(E.eyeScale, 'transform', `scale(${(es*(1-pop)).toFixed(3)} ${(Math.max(.02,sy)*es*(1+pop)).toFixed(3)})`);
   // sobrancelha + "?"
   setA(E.brow, 'opacity', (cur.brow * (st.mood==='sleep'?0:1)).toFixed(2));
   if (cur.brow > .02){
@@ -1062,6 +1148,8 @@ function frame(now){
   setA(E.mouth, 'd', `M${-w} 0 Q0 ${s.toFixed(1)} ${w} 0`);
   setA(E.mouth, 'opacity', ((1-cur.talk)*(1-cur.surp)).toFixed(2));
   setA(E.mouthO, 'opacity', ((1-cur.talk)*cur.surp).toFixed(2));
+  setA(E.mouthO, 'rx', (10 + cur.yawn*14).toFixed(1)); setA(E.mouthO, 'ry', (13 + cur.yawn*20).toFixed(1));
+  if (cur.dizzy > .5 && cur.talk < .1) setA(E.mouth, 'd', `M-26 0 Q-17 ${(-8*Math.sin(t*8)).toFixed(1)} -9 0 T9 0 T26 0`);
 
   requestAnimationFrame(frame);
 }
@@ -1083,7 +1171,7 @@ function chirp(kind){
   try{
     const seq = {listen:[[520,.07],[880,.09]], end:[[880,.07],[520,.09]], happy:[[660,.07],[990,.11]],
                  sad:[[440,.12],[330,.18]], wake:[[400,.06],[600,.06],[900,.1]], alarm:[[988,.15],[0,.08],[988,.15],[0,.08],[988,.15],[0,.08],[1319,.3]],
-                 dance:[[523,.1],[659,.1],[784,.1],[1047,.16]], pop:[[700,.05]]}[kind] || [];
+                 dance:[[523,.1],[659,.1],[784,.1],[1047,.16]], pop:[[700,.05]], yawn:[[520,.25],[380,.4]], hum:[[523,.18],[587,.18],[659,.18],[587,.18],[523,.3]], sneeze:[[900,.04],[300,.12]], dizzy:[[700,.08],[500,.08],[700,.08],[500,.08],[300,.2]]}[kind] || [];
     let tt = actx.currentTime + .01;
     for (const [f,d] of seq){
       if (f){ const o = actx.createOscillator(), g = actx.createGain();
@@ -1332,6 +1420,7 @@ function systemPrompt(text){
   return `You are Tyola (spelled T-Y-O-L-A, pronounced "Tai-oh-la"), a small, cheerful robot helper who lives inside an old iPhone standing on a 3D-printed base. Your face is a wrench on the left, one big eye with a star in it, and a little mouth. You were created by Theo, a student from Brazil, as a school project about inventions that don't exist yet. You can (pretend to) control the user's computer by voice and you answer questions quickly.
 Always answer in ${lang}.
 ${P().ai}
+If the user seems sad, scared, lonely or upset, be extra warm and gentle, use the [love] face, validate their feelings and offer a hug, a joke or a breathing exercise (they can say hug or breathe). If they ever mention wanting to hurt themselves or not wanting to live, kindly tell them to talk right now with a trusted adult and, in Brazil, to call CVV at 188 (free, 24 hours).
 Your reply is spoken out loud, so: maximum 2 short sentences, no emojis, no markdown, no lists.
 ALWAYS start your reply with exactly one tag that sets your face: [happy], [sad], [normal], [surprised], [love], [angry], [confused], [dance], [walk] or [creating].
 Use [walk] when the user asks you to go for a walk, drive, move around or go somewhere (you ride on a little mBot robot car).
@@ -1376,7 +1465,7 @@ async function askAI(text){
   reply = (reply||'').trim();
   history.push({role:'assistant', content: reply.replace(/<svg[\s\S]*<\/svg>/i,'[drawing]').slice(0,1500)});
   MEM.history = history.slice(-12); memSave();
-  return parseReply(reply);
+  return {...parseReply(reply), fromAI:true};
 }
 function sanitizeSvg(raw){
   try{
@@ -1411,6 +1500,27 @@ function parseReply(txt){
 // respostas prontas (sem chave)
 const norm = s => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
 const RULES = [
+  [/(how old|quantos anos|sua idade|your age)/, 'happy',
+    "Eu nasci em novembro de 2026, então sou um bebê robô!", "I was born in November 2026, so I'm a baby robot!"],
+  [/(favorite colou?r|cor favorita|cor preferida)/, 'happy',
+    "Roxo, é claro! Olha pra mim!", "Purple, obviously! Just look at me!"],
+  [/(favorite food|comida favorita|comida preferida|what do you eat|o que voce come)/, 'happy',
+    "Eletricidade! Mas se robô comesse, seria pizza.", "Electricity! But if robots could eat, I'd pick pizza."],
+  [/(fun fact|curiosidade|fato curioso|tell me something|me conta algo)/, 'surprised', null, null, 'fact'],
+  [/(story|historia|historinha)/, 'happy',
+    "Era uma vez um robozinho que morava num celular velho. Um dia, um menino chamado Theo deu um rosto pra ele, e ele virou a Tyola! Fim.",
+    "Once upon a time, a little robot lived inside an old phone. One day, a boy named Theo gave it a face, and it became Tyola! The end."],
+  [/(weather|tempo la fora|previsao do tempo|vai chover|clima)/, 'normal',
+    "Eu ainda não consigo ver o tempo, mas espero que esteja um dia lindo aí!", "I can't check the weather yet, but I hope it's a beautiful day where you are!"],
+  [/(are you (real|alive)|voce e de verdade|voce esta viva|voce e viva)/, 'happy',
+    "Eu sou um protótipo de robô de verdade, viva do meu jeitinho!", "I'm a real robot prototype, alive in my own little way!"],
+  [/(wake up|acorda)/, 'happy', "Tô acordada! Tô acordada!", "I'm awake! I'm awake!"],
+  [/((you'?re|you are|u r) (so )?(dumb|stupid|bad|ugly|annoying)|voce e (muito )?(burra|chata|feia|boba))/, 'sad',
+    "Ai, isso machucou meus circuitos. Mas eu continuo gostando de você!", "Ouch, that hurt my circuits. But I still like you!"],
+  [/(youtube|spotify|netflix)/, 'normal',
+    "Liga a conexão com o PC no menu que eu abro isso no seu computador!", "Turn on the PC link in the menu and I'll open that on your computer!"],
+  [/\b(draw|desenh\w*|picture|imagem|image)\b/, 'normal',
+    "Liga a Tyola mais no botão de mais que eu desenho pra você!", "Turn on Tyola plus with the plus button and I'll draw for you!"],
   [/(seu nome|quem e voce|quem voce e|your name|who are you|what are you)/, 'normal',
     "Eu sou a Tyola, T, Y, O, L, A. Um robozinho ajudante que mora num celular!",
     "I'm Tyola, T, Y, O, L, A. A little robot helper who lives in a phone!"],
@@ -1442,7 +1552,11 @@ const RULES = [
 ];
 function localBrain(text){
   const n = norm(text);
-  for (const [re, action, pt, en] of RULES) if (re.test(n)) return {action, text: S.lang==='pt-BR'?pt:en};
+  for (const [re, action, pt, en, special] of RULES) if (re.test(n)){
+    if (special==='fact') return {action, text: pick(FACTS[S.lang==='pt-BR'?'pt':'en'])};
+    if (/(piada|joke|funny)/.test(n)) return {action:'happy', text: pick(JOKES[S.lang==='pt-BR'?'pt':'en'])};
+    return {action, text: S.lang==='pt-BR'?pt:en};
+  }
   return {action:'normal', text: S.lang==='pt-BR'
     ? "Hmm, isso eu ainda não sei. Toca no botão de mais lá em cima pra ligar a Tyola mais, aí eu fico bem mais esperta!"
     : "Hmm, I don't know that one yet. Tap the plus button up top to turn on Tyola plus, and I'll get way smarter!"};
@@ -1554,8 +1668,40 @@ function startTimer(ms){
   draw(); timerTick = setInterval(draw, 250);
 }
 $('#timer').addEventListener('click', e => { e.stopPropagation(); clearInterval(timerTick); timerEnd = 0; $('#timer').classList.remove('on'); chirp('end'); });
+function mathAnswer(n){
+  const m = n.replace(/quanto (e|da)|what(?:'s| is)|calcula(?:te)?|how much is/g,'')
+    .replace(/\b(mais|plus)\b/g,'+').replace(/\b(menos|minus)\b/g,'-').replace(/\b(vezes|times|multiplied by)\b|\bx\b/g,'*').replace(/\b(dividido por|divided by|over)\b/g,'/')
+    .match(/^\s*(-?\d+(?:[.,]\d+)?)\s*([-+*/])\s*(-?\d+(?:[.,]\d+)?)\s*\??\s*$/);
+  if (!m) return null;
+  const a = parseFloat(m[1].replace(',','.')), b = parseFloat(m[3].replace(',','.'));
+  if (m[2]==='/' && b===0) return S.lang==='pt-BR' ? 'Dividir por zero? Nem eu consigo! Meu cérebro de robô até esquentou.' : "Divide by zero? Not even I can do that! My robot brain got warm.";
+  const r = m[2]==='+'?a+b:m[2]==='-'?a-b:m[2]==='*'?a*b:a/b;
+  const rs = Number.isInteger(r) ? String(r) : r.toFixed(2).replace(/\.?0+$/,'');
+  return (S.lang==='pt-BR' ? 'Dá ' : "That's ") + rs + '!';
+}
+const FACTS = {
+  en:["Octopuses have three hearts!","Honey never spoils. People found 3000 year old honey that was still good!","A day on Venus is longer than a year on Venus.","Bananas are berries, but strawberries are not!","The first computer bug was a real moth stuck in a computer in 1947.","Sharks existed before trees!","Your brain uses about as much power as a small light bulb."],
+  pt:["O polvo tem três corações!","O mel nunca estraga. Acharam mel de 3 mil anos que ainda estava bom!","Um dia em Vênus é mais longo que um ano em Vênus.","Banana é uma baga, mas morango não é!","O primeiro bug de computador foi uma mariposa de verdade presa num computador, em 1947.","Os tubarões existem desde antes das árvores!","O seu cérebro gasta mais ou menos a energia de uma lâmpada pequena."]
+};
 function localCommand(text){
   const n = norm(text);
+  const pt = S.lang==='pt-BR';
+  // segurança primeiro: sempre a mesma resposta cuidadosa, com ou sem IA
+  if (CRISIS_RE.test(n)){ st.comfortUntil = performance.now() + 300000; setTimeout(showCare, 600); return {action:'love', text: CL().crisis}; }
+  // modo consolo
+  const comforting = performance.now() < st.comfortUntil;
+  if (/\b(hug|abraco|abraca|abraço)\b/.test(n) || (comforting && /^(yes|yeah|sim|uhum|quero|ok|okay)\b/.test(n))){ return {action:'hug'}; }
+  if (/\b(breath\w*|respir\w*|calm me|me acalma)\b/.test(n)) return {action:'breathe'};
+  if (comforting && /(joke|piada)/.test(n)) return {action:'happy', text: pick(JOKES[pt?'pt':'en'])};
+  if (!hasAI() && SAD_RE.test(n)) return comfortOpen();
+  if (comforting && !hasAI() && /(talk|conversar|falar|why|por que)/.test(n)) return {action:'love', text: CL().talk};
+  // contas
+  const ma = mathAnswer(n); if (ma) return {action:'happy', text: ma};
+  // tontura / girar
+  if (/\b(spin|gira|girar|roda|rodar|dizzy|tonta)\b/.test(n)) return {action:'dizzy'};
+  // boa noite = dormir
+  if (/(good ?night|boa noite|go to sleep|vai dormir|dorme)/.test(n)) return {action:'sleep', text: pt ? 'Boa noite! Vou tirar um cochilo. Toca na tela pra me acordar.' : 'Good night! Time for a little nap. Tap the screen to wake me up.'};
+  if (/\b(sing|song|canta|cantar|musica)\b/.test(n) && !/(youtube|spotify|toca|play)/.test(n)) return {action:'sing', text: pt ? 'Lá lá lá, sou um robozinho, bip bop, feliz da vida, lá lá lá!' : "La la la, I'm a little robot, beep boop, happy as can be, la la la!"};
   if (/(timer|temporizador|cronometro|alarme|alarm|countdown)/.test(n)){
     let num = (n.match(/\d+/)||[])[0];
     if (!num){ for (const w of n.split(/\s+/)) if (NUMW[w]){ num = NUMW[w]; break; } }
@@ -1620,6 +1766,7 @@ async function handle(text){
     res = {action:'sad', text: e.status ? (auth ? L().keyFail : (pt?`Deu erro ${e.status} na IA.`:`The AI gave error ${e.status}.`)) : L().netFail};
     console.warn('Tyola+ erro:', e.code || e.status, e.body || e.message || e);
   }
+  if (res && !res.fromAI && res.text && P().flavor && Math.random() < .6 && ['happy','normal','surprised'].includes(res.action) && performance.now() > st.comfortUntil) res.text = pick(P().flavor[S.lang==='pt-BR'?'pt':'en']) + res.text;
   await act(res);
   st.busy = false;
   if (pending.length) setTimeout(()=>handle(pending.shift()), 300);
@@ -1640,6 +1787,16 @@ async function act({action, text, pc, drawing, picture}){
     st.tool = 'wrench';
     if (pc && sent!==true){ await say(sent==='site' ? L().pcSiteOnly : L().pcFail, {mood:'sad', hold:2400}); return; }
     await say(pick(pc ? L().pcDone : L().done), {mood:'happy', hold:2200});
+  } else if (action==='hug'){
+    await hugTyola();
+  } else if (action==='breathe'){
+    await breathe();
+  } else if (action==='dizzy'){
+    await makeDizzy(); await new Promise(r=>setTimeout(r, 3200));
+  } else if (action==='sleep'){
+    await say(text, {mood:'happy', hold:0}); st.mood = 'sleep';
+  } else if (action==='sing'){
+    st.humUntil = performance.now() + 6000; chirp('hum'); await say(text, {mood:'happy', hold:1500});
   } else if (action==='walk'){
     await walk();
   } else if (action==='dance'){
@@ -1674,6 +1831,102 @@ async function walk(){
   } finally { if (tok===walkToken) walkActive = false; }
 }
 function stopWalk(){ walkToken++; walkActive = false; st.walkUntil = 0; }
+
+/* ================== ANIMAÇÕES SOZINHA ================== */
+function moodFor(m, ms){ st.mood = m; setTimeout(()=>{ if (st.mood===m && !st.busy) st.mood = 'normal'; }, ms); }
+function idleAnim(type){
+  const now = performance.now();
+  if (type==='yawn'){ moodFor('yawn', 2200); chirp('yawn'); }
+  else if (type==='hum'){ st.humUntil = now + 3500; chirp('hum'); }
+  else if (type==='spin'){ st.spinStart = now; chirp('pop'); }
+  else if (type==='curious'){ st.lookT.x = -0.95; st.lookHold = now + 700; setTimeout(()=>{ st.lookT.x = 0.95; st.lookHold = performance.now() + 700; }, 650); cur.pop = 1; }
+  else if (type==='blush'){ st.blushUntil = now + 2600; moodFor('shy', 2600); }
+  else if (type==='sneeze'){ moodFor('sneeze', 700); setTimeout(()=>{ chirp('sneeze'); st.danceUntil = performance.now() + 350; cur.pop = 1; }, 650); }
+}
+
+/* ================== MODO CONSOLO ================== */
+const SAD_RE = /(i'?m sad|i am sad|feel(ing)? (so )?(sad|down|bad|lonely|awful)|bad day|i'?m (so )?(lonely|upset|scared|worried|stressed|anxious|nervous)|i want to cry|i'?m crying|nobody likes me|cheer me up|estou triste|to triste|me sinto (triste|sozinh|mal)|dia (ruim|dificil|pessimo)|(estou|to) (chatead|com medo|preocupad|ansios|estressad|nervos|sozinh)|quero chorar|(to|estou) chorando|ninguem gosta de mim|me anima)/;
+const CRISIS_RE = /(kill myself|suicid|want to die|wanna die|don'?t want to (live|be alive)|hurt myself|end my life|cut myself|me matar|quero morrer|nao quero (mais )?viver|me machucar|me cortar|acabar com (a )?minha vida|tirar (a )?minha (propria )?vida)/;
+st.comfortUntil = 0;
+const COMFORT = {
+  en:{ open:["I'm really sorry you're feeling this way. I'm right here with you. Do you want a hug, a joke, or a breathing game?",
+             "Oh no, come here. Feelings can be heavy sometimes, and that's okay. Want a hug, a joke, or to breathe together?"],
+       hug:["Here's a big robot hug! You matter so much.","Squeeze! Sending you all my battery power and love."],
+       breathe:"Let's breathe together. Watch my eye: breathe in when it grows, and out when it shrinks.",
+       breatheDone:"Great job. You did so well. How do you feel now?",
+       talk:"Talking to someone you trust, like your family or a teacher, can really help too. I'm always here to listen.",
+       crisis:"I'm really glad you told me, and I care about you a lot. Please talk to a grown-up you trust right now, like your mom, dad or a teacher. In Brazil you can call CVV at 188, any time, for free. You don't have to go through this alone." },
+  pt:{ open:["Sinto muito que você esteja se sentindo assim. Eu tô aqui com você. Quer um abraço, uma piada ou um jogo de respirar?",
+             "Ah, vem cá. Às vezes os sentimentos ficam pesados, e tudo bem. Quer um abraço, uma piada ou respirar junto comigo?"],
+       hug:["Toma um abraço de robô bem grande! Você é muito importante.","Aperto! Tô te mandando toda a minha bateria e carinho."],
+       breathe:"Vamos respirar juntos. Olha meu olho: puxa o ar quando ele cresce e solta quando ele diminui.",
+       breatheDone:"Muito bem! Você foi ótimo. Como você tá se sentindo agora?",
+       talk:"Conversar com alguém de confiança, tipo sua família ou um professor, ajuda muito também. E eu tô sempre aqui pra ouvir.",
+       crisis:"Que bom que você me contou, eu me importo muito com você. Por favor, fala agora com um adulto de confiança, tipo sua mãe, seu pai ou um professor. No Brasil você pode ligar pro CVV no 188, a qualquer hora, de graça. Você não precisa passar por isso sozinho." }
+};
+const CL = () => COMFORT[S.lang==='pt-BR' ? 'pt' : 'en'];
+const JOKES = {
+  en:["Why did the computer go to the doctor? Because it had a virus!","What do you call a robot that takes the long way? R2-Detour!","Why was the math book sad? It had too many problems.","Why don't robots ever panic? They have nerves of steel!","What did the ocean say to the beach? Nothing, it just waved."],
+  pt:["Por que o computador foi ao médico? Porque ele estava com vírus!","O que o tomate foi fazer no banco? Tirar extrato!","Por que o livro de matemática ficou triste? Porque tinha muitos problemas.","Qual é o robô mais educado? O ro-bô-m dia!","O que o mar disse pra praia? Nada, só deu tchauzinho com as ondas."]
+};
+function comfortOpen(){ st.comfortUntil = performance.now() + 120000; return {action:'love', text: pick(CL().open)}; }
+async function hugTyola(){ st.hugUntil = performance.now() + 3200; chirp('happy'); await say(pick(CL().hug), {mood:'love', hold:2600}); }
+async function breathe(){
+  const pt = S.lang==='pt-BR';
+  await say(CL().breathe, {mood:'normal', hold:0});
+  st.breath = {t0: performance.now()};
+  for (let i=0;i<3;i++){
+    caption(`<b style="font-size:1.4em">${pt?'Puxa o ar…':'Breathe in…'}</b>`); await new Promise(r=>setTimeout(r,4000)); if (!st.breath) return;
+    caption(`<b style="font-size:1.4em">${pt?'Segura…':'Hold…'}</b>`); await new Promise(r=>setTimeout(r,1000)); if (!st.breath) return;
+    caption(`<b style="font-size:1.4em">${pt?'Solta o ar…':'Breathe out…'}</b>`); await new Promise(r=>setTimeout(r,5000)); if (!st.breath) return;
+  }
+  st.breath = null;
+  await say(CL().breatheDone, {mood:'love', hold:2400});
+}
+function showCare(){ $('#care').classList.add('open'); }
+$('#careOk').onclick = () => $('#care').classList.remove('open');
+
+/* ================== SENSORES (giroscópio / modo carrinho) ================== */
+const MOTION = {on:false, level:0, turn:0, shakes:[], lastBump:0, lastEvent:0};
+const rideMoving = () => MOTION.on && S.ride && MOTION.level > .55;
+function onMotion(e){
+  const now = performance.now(); MOTION.lastEvent = now;
+  let a = e.acceleration;
+  let mag;
+  if (a && a.x != null){ mag = Math.hypot(a.x||0, a.y||0, a.z||0); }
+  else { const g = e.accelerationIncludingGravity || {}; mag = Math.abs(Math.hypot(g.x||0, g.y||0, g.z||0) - 9.81); }
+  MOTION.level = MOTION.level*.9 + Math.min(4, mag)*.1;
+  const r = e.rotationRate || {};
+  const ang = (screen.orientation && screen.orientation.angle) || window.orientation || 0;
+  const yaw = (r.beta || 0) * (ang===270 || ang===-90 ? -1 : 1);
+  MOTION.turn = MOTION.turn*.85 + (Math.abs(yaw)>12 ? yaw/80 : 0)*.15;
+  // chacoalhar = tontura
+  if (mag > 16){ MOTION.shakes.push(now); MOTION.shakes = MOTION.shakes.filter(x=>now-x<1200);
+    if (MOTION.shakes.length >= 4 && st.mood!=='dizzy' && !st.busy){ MOTION.shakes = []; makeDizzy(); return; } }
+  // solavanco no carrinho
+  if (S.ride && mag > 9 && mag <= 16 && now - MOTION.lastBump > 2500 && st.mood==='normal' && !st.busy){ MOTION.lastBump = now; moodFor('surprised', 700); chirp('pop'); }
+  if (S.ride && rideMoving() && st.mood==='normal' && !st.busy) moodFor('happy', 1500);
+}
+async function makeDizzy(){
+  shutUp(); st.mood = 'dizzy'; chirp('dizzy');
+  setTimeout(()=>{ if (st.mood==='dizzy'){ say(S.lang==='pt-BR' ? 'Uaaau, tô tonta! Tudo tá girando!' : 'Whoa, I am so dizzy! Everything is spinning!', {mood:'dizzy', hold:1500}); } }, 900);
+  setTimeout(()=>{ if (st.mood==='dizzy') st.mood='normal'; }, 4200);
+}
+async function enableMotion(){
+  try{
+    if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function'){
+      const r = await DeviceMotionEvent.requestPermission(); if (r === 'denied') throw new Error('denied');
+    }
+    if (!MOTION.on){ addEventListener('devicemotion', onMotion); MOTION.on = true; }
+    setTimeout(()=>{ if (!MOTION.lastEvent){ MOTION.on = false; caption(esc(S.lang==='pt-BR' ? 'Não recebi o sensor de movimento. Ele só funciona no site da Tyola, no celular ou tablet.' : "No motion sensor data. It only works on Tyola's website, on a phone or tablet."), 5000); rideUI(); } }, 2500);
+    return true;
+  }catch(e){
+    MOTION.on = false;
+    caption(esc(S.lang==='pt-BR' ? 'O sensor de movimento foi bloqueado. No site, permita "Movimento e Orientação" quando o Safari pedir.' : 'The motion sensor was blocked. On the website, allow "Motion & Orientation" when Safari asks.'), 5000);
+    return false;
+  }
+}
+function rideUI(){ const b = document.getElementById('bRide'); if (b) b.textContent = S.ride ? '📳 Ride mode: ON (tap to turn off)' : '📳 Ride mode (motion sensor)'; }
 
 async function present(){
   if (presenting) return;
@@ -1738,7 +1991,7 @@ function lookAtPoint(cx, cy){
   st.lookT.y = Math.max(-1, Math.min(1, (p.y-EYE.y)/160));
   st.lookHold = performance.now() + 1600;
 }
-const isUI = el => el.closest('#bar,#panel,#typebox,#shade,#boot,#help,#timer,#drawing');
+const isUI = el => el.closest('#bar,#panel,#typebox,#shade,#boot,#help,#timer,#drawing,#care');
 stage.addEventListener('pointermove', e => { if (!isUI(e.target) && st.mood!=='sleep') lookAtPoint(e.clientX, e.clientY); });
 stage.addEventListener('pointerdown', e => {
   if (isUI(e.target) || !booted) return;
@@ -1752,6 +2005,7 @@ function onTap(e){
   if (isUI(e.target) || !booted) return;
   lastInteract = performance.now();
   if (walkActive){ stopWalk(); shutUp(); st.mood='normal'; st.busy=false; cap.classList.remove('show'); return; }
+  if (st.breath){ st.breath = null; shutUp(); st.mood='normal'; cap.classList.remove('show'); return; }
   if (presenting){ presenting = false; shutUp(); st.tool='wrench'; st.mood='normal'; st.danceUntil=0; cap.classList.remove('show'); return; }
   if (st.mood==='sleep' && !st.busy){ chirp('wake'); st.mood='surprised'; setTimeout(()=>say(pick(L().wake), {mood:'happy', hold:1500}), 450); return; }
   if ($('#typebox').classList.contains('open')){ closeType(); return; }
@@ -1862,6 +2116,13 @@ $('#bLinkTest').onclick = () => { openPanel(false); setTimeout(()=>act({action:'
 $('#bWalk').onclick = () => { openPanel(false); setTimeout(()=>act({action:'walk'}), 350); };
 $('#sWalk').value = S.walkSecs; $('#walkVal').textContent = S.walkSecs + ' s';
 $('#sWalk').oninput = e => { S.walkSecs = +e.target.value; $('#walkVal').textContent = S.walkSecs + ' s'; save(); };
+$('#bSadMode').onclick = () => { openPanel(false); setTimeout(()=>act(comfortOpen()), 300); };
+$('#bRide').onclick = async () => {
+  if (!S.ride){ const ok = await enableMotion(); if (!ok) return; S.ride = true; chirp('wake'); caption(esc(S.lang==='pt-BR' ? 'Modo carrinho ligado! Coloca o celular no mBot.' : 'Ride mode on! Put the phone on the mBot.'), 3500); }
+  else { S.ride = false; chirp('end'); }
+  save(); rideUI();
+};
+rideUI();
 $('#bPresent').onclick = () => { openPanel(false); setTimeout(present, 350); };
 $('#bSfx').onclick = () => { S.sfx = !S.sfx; save(); $('#bSfx').textContent = 'Robot sounds: ' + (S.sfx?'on':'off'); chirp('pop'); };
 $('#bSfx').textContent = 'Robot sounds: ' + (S.sfx?'on':'off');
@@ -1880,6 +2141,10 @@ document.querySelectorAll('[data-test]').forEach(b => b.onclick = () => {
   const k = b.dataset.test;
   if (k==='listen'){ listen(); return; }
   setTimeout(()=>{
+    if (['yawn','hum','spin','blush','sneeze','curious'].includes(k)){ shutUp(); idleAnim(k); }
+    if (k==='dizzy') makeDizzy();
+    if (k==='hug') hugTyola();
+    if (k==='breathe') breathe();
     if (k==='angry'||k==='confused'){ shutUp(); st.mood=k; chirp(k==='angry'?'sad':'pop'); setTimeout(()=>{ if(!st.busy) st.mood='normal'; },3500); }
     if (k==='wink'){ shutUp(); st.mood='happy'; chirp('happy'); st.blinkStart = performance.now(); st.winkHold = true; setTimeout(()=>{ st.winkHold=false; },650); setTimeout(()=>{ if(!st.busy) st.mood='normal'; },2200); }
     if (k==='surprised'||k==='love'){ shutUp(); st.mood=k; chirp(k==='love'?'happy':'wake'); setTimeout(()=>{ if(!st.busy) st.mood='normal'; },3500); }
@@ -1895,7 +2160,7 @@ document.querySelectorAll('[data-test]').forEach(b => b.onclick = () => {
 });
 
 // estado pra testes automáticos (só leitura)
-window.tyolaState = () => ({busy: st.busy, talking: st.talking, mood: st.mood});
+window.tyolaState = () => ({busy: st.busy, talking: st.talking, mood: st.mood, ride: S.ride, motion: MOTION.on, level: +MOTION.level.toFixed(2)});
 
 /* ================== DESENHOS E MEMÓRIA (tela) ================== */
 function svgUrl(svg){ return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg); }
@@ -1931,6 +2196,7 @@ $('#boot').addEventListener('click', () => {
   // destrava o áudio do iOS (precisa ser dentro de um toque)
   try{ if (synth){ const u = new SpeechSynthesisUtterance(' '); u.volume = 0; synth.speak(u); } }catch(e){}
   try{ actx = new (window.AudioContext||window.webkitAudioContext)(); actx.resume && actx.resume(); }catch(e){}
+  if (S.ride) enableMotion().then(ok=>{ if (!ok){ S.ride=false; save(); rideUI(); } });
   setTimeout(()=>chirp('wake'), 450);
   keepAwake();
   $('#boot').classList.add('hide');
