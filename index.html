@@ -411,7 +411,7 @@ body.iphone8 #stage{border-radius:0;box-shadow:0 0 0 1px rgba(214,190,255,.18)}
   <div id="shade"></div>
   <aside id="panel">
     <h2>Tyola</h2>
-    <div class="sub">Settings · say it “Tie-oh-la” · <b id="verLabel">v1.2</b></div>
+    <div class="sub">Settings · say it “Tie-oh-la” · <b id="verLabel">v1.3</b></div>
 
     <h3>Show time</h3>
     <button class="btn present" id="bPresent" type="button">▶ Presentation mode</button>
@@ -444,6 +444,15 @@ body.iphone8 #stage{border-radius:0;box-shadow:0 0 0 1px rgba(214,190,255,.18)}
     </div>
     <button class="btn primary" id="bTestKey" type="button">Test connection</button>
     <div id="keyStatus"></div>
+
+    <h3>Pictures</h3>
+    <label for="sPic">Picture maker</label>
+    <select id="sPic">
+      <option value="auto">Automatic (AI pictures on the website, drawings inside Claude)</option>
+      <option value="pollinations">AI pictures (Pollinations, free, website only)</option>
+      <option value="svg">Tyola's own drawings (works everywhere)</option>
+    </select>
+    <div class="hint">Say “draw a cat astronaut” or “make a picture of a pizza dragon”. AI pictures come from <b>pollinations.ai</b>, a free service: one picture every 15 seconds, and it can add a small logo. Pictures work even with Tyola+ off; with Tyola+ on she writes a better description and remembers them.</div>
 
     <h3>Tyola+ memory</h3>
     <div class="hint" style="margin-top:0">What Tyola remembers. It's saved only on this device and is used only when Tyola+ is on.</div>
@@ -651,8 +660,10 @@ function memForget(){ MEM = {facts:[], images:[], history:[], lastVersion:MEM.la
 /* ================== VERSÃO E HISTÓRICO DE UPDATES ==================
    A Tyola conhece as próprias atualizações (funciona com ou sem a Tyola+).
    A cada versão nova, coloque um item NO TOPO desta lista. */
-const VERSION = '1.2';
+const VERSION = '1.3';
 const CHANGELOG = [
+  {v:'1.3', en:['real AI pictures from Pollinations on my website, even with Tyola plus off','much prettier sticker-style drawings inside the Claude app'],
+            pt:['imagens de IA de verdade do Pollinations no meu site, até com a Tyola mais desligada','desenhos estilo figurinha bem mais bonitos dentro do app do Claude']},
   {v:'1.2', en:['a memory: with Tyola plus on, I remember what you tell me, even after closing the app',
                 'I can draw pictures for you, and remember them later',
                 'my eye always has its outline now, and I lost my eyebrow'],
@@ -676,7 +687,7 @@ function describeUpdate(i){
 const DEFAULTS = {
   provider:'app', key:'', model:'quick', custom:'',
   base:'https://models.github.ai/inference/chat/completions',
-  lang:'en-US', rate:1.05, pitch:1.3, mic:true, voice:true, bar:true, sfx:true, walkSecs:15, input:'auto', screen:'full', theme:'roxo', eye:'roxo', glint:'estrela', persona:'alegre', linkOn:false, linkCode:'', eyeStyle:'classic', bg:'aurora', aiOn:false, customPersona:'', customFace:'alegre', voiceName:'', v:0
+  lang:'en-US', rate:1.05, pitch:1.3, mic:true, voice:true, bar:true, sfx:true, walkSecs:15, input:'auto', screen:'full', theme:'roxo', eye:'roxo', glint:'estrela', persona:'alegre', linkOn:false, linkCode:'', eyeStyle:'classic', bg:'aurora', aiOn:false, customPersona:'', customFace:'alegre', voiceName:'', v:0, picEngine:'auto'
 };
 const MODELS = {
   app:[
@@ -1126,8 +1137,10 @@ function say(text, {mood, hold=1800} = {}){
     st.talking = true;
     let finished = false;
     const done = () => {
-      if (finished || tok!==speakTok) return;
+      if (finished) return;
       finished = true;
+      // fala interrompida por outra: só avisa que terminou (antes ficava pendurada e travava a Tyola em "ocupada")
+      if (tok!==speakTok){ res(); return; }
       st.talking = false;
       capTimer = setTimeout(()=>cap.classList.remove('show'), 2500);
       setTimeout(()=>{ if(tok===speakTok && !st.busy && !st.listening && st.mood!=='sleep') st.mood='normal'; }, hold);
@@ -1242,16 +1255,76 @@ function stopListening(){ try{ rec && rec.stop(); }catch(e){} }
 
 /* ================== CÉREBRO ================== */
 let history = Array.isArray(MEM.history) ? MEM.history.slice(-12) : [];
+/* ================== IMAGENS ==================
+   Pollinations.ai: grátis e sem chave. A imagem vem direto de um link:
+   https://image.pollinations.ai/prompt/<descrição>?width=…&height=…&seed=…  (1 imagem a cada ~15 s sem conta)
+   Dentro do app do Claude a internet é bloqueada, então lá ela usa os próprios desenhos (SVG). */
+const picEngine = () => S.picEngine==='svg' ? 'svg' : S.picEngine==='pollinations' ? 'pollinations' : (SITE_OK_NOW() ? 'pollinations' : 'svg');
+function SITE_OK_NOW(){ try{ return /^https?:$/.test(location.protocol) && window.self === window.top; }catch(e){ return false; } }
+const STICKER_STYLE = 'cute kawaii sticker illustration, vibrant colors, soft shading, thick white outline, clean simple background, high quality, kid friendly';
+let lastPicAt = 0;
+function pollinationsUrl(prompt, seed){
+  const full = `${prompt.slice(0,380)}, ${STICKER_STYLE}`;
+  return 'https://image.pollinations.ai/prompt/' + encodeURIComponent(full) +
+    `?width=768&height=576&model=flux&nologo=true&safe=true&seed=${seed}&referrer=tyola`;
+}
+function subjectFrom(text){
+  return text.replace(/\b(please|por favor|can you|could you|voc[eê] pode|pode)\b/gi,'')
+    .replace(/\b(draw|make|create|generate|paint|sketch|show me)\b\s*(me\s*)?(a|an|the)?\s*(picture|image|drawing|illustration|photo)?\s*(of)?/i,'')
+    .replace(/\b(desenh\w*|fa[cç]a|faz|cria|crie|gera|gere|gerar|mostra)\b\s*(uma?|o|a)?\s*(imagem|figura|figurinha|desenho|foto|ilustra\w*)?\s*(de|do|da)?/i,'')
+    .replace(/[?!.]+$/,'').trim() || text;
+}
+// carrega a imagem; resolve com a URL, ou rejeita se o serviço falhar
+function loadPicture(prompt, seed){
+  return new Promise(async (res, rej) => {
+    const wait = Math.max(0, lastPicAt + 15500 - Date.now());
+    if (wait) await new Promise(r=>setTimeout(r, wait));
+    lastPicAt = Date.now();
+    const url = pollinationsUrl(prompt, seed);
+    const im = new Image();
+    const to = setTimeout(()=>{ im.src=''; rej(new Error('timeout')); }, 60000);
+    im.onload = () => { clearTimeout(to); res(url); };
+    im.onerror = () => { clearTimeout(to); rej(new Error('error')); };
+    im.src = url;
+  });
+}
+async function makePicture(prompt, opts={}){
+  const pt = S.lang==='pt-BR';
+  const seed = opts.seed || Math.floor(Math.random()*1e6);
+  st.tool = 'mouse'; st.mood = 'think';
+  caption(`<span class="you">🎨 ${pt?'Criando a imagem… (pode levar uns segundos)':'Making your picture… (this can take a few seconds)'}</span>`);
+  try{
+    const url = await loadPicture(prompt, seed);
+    st.tool = 'wrench';
+    showPicture(url, opts.title || prompt);
+    MEM.images.push({prompt:(opts.title||prompt).slice(0,160), url, seed, desc:prompt.slice(0,380), t:Date.now()});
+    MEM.images = MEM.images.slice(-8); memSave(); memUI();
+    return true;
+  }catch(e){
+    st.tool = 'wrench';
+    await say(pt ? 'O serviço de imagens não respondeu. Tenta de novo daqui a pouquinho!' : "The picture service didn't answer. Try again in a moment!", {mood:'sad', hold:2000});
+    return false;
+  }
+}
+
 const wantsDrawing = t => /\b(draw|drawing|picture|image|illustration|sketch|paint|desenh\w*|imagem|ilustra\w*|figura|gera(r)? uma|generate)\b/i.test(t||'');
 function memoryPrompt(text){
   let m = `\nYour version is v${VERSION}. Your update history (newest first): ` + CHANGELOG.map(c=>`v${c.v}: ${c.en.join('; ')}`).join(' | ') + '.';
   if (MEM.facts.length) m += '\nThings you remember about the user and your past chats (use them naturally when relevant, do not list them all): ' + MEM.facts.map(f=>'- '+f.text).join(' ');
   if (MEM.images.length){
     m += '\nDrawings you made before (oldest first): ' + MEM.images.map((im,i)=>`#${i+1} "${im.prompt}"`).join(', ') + '.';
-    if (wantsDrawing(text)){ const last = MEM.images[MEM.images.length-1]; m += `\nThe SVG of your most recent drawing (#${MEM.images.length}), in case they want something similar:\n` + last.svg.slice(0,5000); }
+    if (wantsDrawing(text)){
+      const last = MEM.images[MEM.images.length-1];
+      if (last.desc) m += `\nYour most recent picture (#${MEM.images.length}) was made from this description: "${last.desc}" (seed ${last.seed}).`;
+      if (last.svg) m += `\nThe SVG of your most recent drawing (#${MEM.images.length}), in case they want something similar:\n` + last.svg.slice(0,5000);
+    }
   }
   m += '\nIf the user tells you something worth remembering long-term (their name, likes, plans, things you made together), add <remember>short fact in English</remember> at the very end (not spoken). Use it at most once per reply.';
-  m += '\nIf the user asks you to draw, create or generate an image or picture, say one short sentence and then add ONE drawing at the very end: a complete <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">...</svg>, a cute, colorful, flat vector illustration with a background, under 4000 characters, no text, no scripts, no external images. You cannot make photos, only drawings like this.';
+  if (picEngine()==='pollinations'){
+    m += '\nIf the user asks you to draw, create or generate an image or picture, say one short sentence and then add at the very end <image>a vivid, detailed English description for an AI image generator (subject, pose, colors, setting, mood; under 60 words; kid-friendly)</image>. If they want something similar to a previous picture, reuse and tweak that description and add <seed>the same seed number</seed>. Never describe real people.';
+  } else {
+    m += '\nIf the user asks you to draw, create or generate an image or picture, say one short sentence and then add ONE drawing at the very end: a complete <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">...</svg>. Make it look like a polished kawaii sticker: a soft gradient background (use <defs> with linearGradient/radialGradient), the main character big in the center with a thick white outline and a darker outline around it, rounded shapes, cheeks/shine highlights, a soft drop shadow ellipse under it, and 2-4 small decorations (stars, sparkles, hearts, clouds). Use at least 15 shapes and 5 harmonious colors. Under 6000 characters, no text, no scripts, no external images. You cannot make photos, only drawings like this.';
+  }
   return m;
 }
 function systemPrompt(text){
@@ -1278,7 +1351,7 @@ async function askAI(text){
   const model = modelName();
   let reply;
   if (S.provider==='app'){
-    const r = await sampleFn([{role:'user', content: systemPrompt(text)}, ...history], {modelTier: wantsDrawing(text) && S.model==='quick' ? 'default' : S.model, cache:false});
+    const r = await sampleFn([{role:'user', content: systemPrompt(text)}, ...history], {modelTier: wantsDrawing(text) && picEngine()==='svg' ? 'complex' : S.model, cache:false});
     reply = r.text;
   } else if (S.provider==='anthropic'){
     const r = await fetch('https://api.anthropic.com/v1/messages',{
@@ -1317,7 +1390,9 @@ function sanitizeSvg(raw){
   }catch(e){ return null; }
 }
 function parseReply(txt){
-  let pc = null, drawing = null;
+  let pc = null, drawing = null, picture = null;
+  txt = txt.replace(/<image>([\s\S]*?)<\/image>/i, (_, d) => { picture = {desc: d.replace(/\s+/g,' ').trim().slice(0,380)}; return ''; });
+  txt = txt.replace(/<seed>\s*(\d+)\s*<\/seed>/i, (_, sd) => { if (picture) picture.seed = +sd; return ''; });
   txt = txt.replace(/<remember>([\s\S]*?)<\/remember>/gi, (_, f) => { memAddFact(f); return ''; });
   const sv = txt.match(/<svg[\s\S]*<\/svg>/i);
   if (sv){ drawing = sanitizeSvg(sv[0]); txt = txt.replace(sv[0], ''); }
@@ -1330,7 +1405,7 @@ function parseReply(txt){
   let text = (m ? txt.slice(m[0].length) : txt).replace(/\[(\w+)\]/g,'').replace(/[*_#`]/g,'').trim();
   const map = {happy:'happy',feliz:'happy',sad:'sad',triste:'sad',creating:'create',criando:'create',normal:'normal',surprised:'surprised',surpresa:'surprised',love:'love',amor:'love',dance:'dance',danca:'dance',walk:'walk',passeio:'walk',angry:'angry',bravo:'angry',confused:'confused',confuso:'confused'};
   const action = pc ? 'create' : (map[tag]||'normal');
-  return {action, text: text || '...', pc: S.linkOn ? pc : null, drawing};
+  return {action, text: text || '...', pc: S.linkOn ? pc : null, drawing, picture};
 }
 
 // respostas prontas (sem chave)
@@ -1489,6 +1564,10 @@ function localCommand(text){
     startTimer(num*(secs?1000:60000));
     return {action:'happy', text: L().timerSet(secs ? L().sec(num) : L().min(num))};
   }
+  if (!hasAI() && wantsDrawing(text) && picEngine()==='pollinations' && !/\b(open|abre|abrir)\b/.test(n)){
+    const subj = subjectFrom(text);
+    return {action:'happy', text: S.lang==='pt-BR' ? 'Prontinho! Gostou?' : 'Here you go! Do you like it?', picture:{desc: subj}};
+  }
   if (/(update|atualiza|versao|version|what'?s new|whats new|o que (tem|ha) de novo|novidade)/.test(n)){
     const prev = /(previous|before|anterior|antes|penultim)/.test(n);
     const i = prev ? 1 : 0;
@@ -1524,7 +1603,7 @@ async function handle(text){
   try{
     res = localCommand(text) || pcCommand(text);
     if (res) await new Promise(r=>setTimeout(r,350));
-    else if (hasAI()){ if (wantsDrawing(text)){ st.tool='mouse'; caption(`<span class="you">${S.lang==='pt-BR'?'Desenhando…':'Drawing…'}</span>`); } res = await askAI(text); st.tool='wrench'; }
+    else if (hasAI()){ if (wantsDrawing(text)){ st.tool='mouse'; caption(`<span class="you">${S.lang==='pt-BR'?'Pensando no desenho…':'Thinking about your picture…'}</span>`); } res = await askAI(text); st.tool='wrench'; }
     else { await new Promise(r=>setTimeout(r,600)); res = localBrain(text); }
   }catch(e){
     history.pop();
@@ -1546,7 +1625,8 @@ async function handle(text){
   if (pending.length) setTimeout(()=>handle(pending.shift()), 300);
 }
 
-async function act({action, text, pc, drawing}){
+async function act({action, text, pc, drawing, picture}){
+  if (picture && picture.desc){ const ok = await makePicture(picture.desc, {seed: picture.seed, title: lastUserText}); if (!ok) return; }
   if (drawing){ showDrawing(drawing, lastUserText); MEM.images.push({prompt:lastUserText.slice(0,120), svg:drawing.slice(0,9000), t:Date.now()}); MEM.images = MEM.images.slice(-8); memSave(); memUI(); }
   if (action==='create'){
     st.tool = 'mouse'; st.mood = 'normal';
@@ -1734,7 +1814,7 @@ $('#bPlus').onclick = () => {
   if (S.aiOn){ st.mood = 'surprised'; caption('<b>TYOLA+ ON</b> · AI brain activated', 2500); setTimeout(()=>{ if (st.mood==='surprised') st.mood='happy'; setTimeout(()=>{ if (st.mood==='happy' && !st.busy) st.mood='normal'; }, 1500); }, 700); }
   else caption('<b>Tyola+ off</b> · normal mode', 2000);
 };
-const openPanel = v => { $('#panel').classList.toggle('open', v); $('#shade').classList.toggle('open', v); };
+const openPanel = v => { $('#panel').classList.toggle('open', v); $('#shade').classList.toggle('open', v); if (v && typeof memUI==='function') memUI(); };
 $('#bMenu').onclick = () => openPanel(true);
 $('#shade').onclick = () => openPanel(false);
 
@@ -1750,7 +1830,7 @@ function fillModels(){
 }
 function loadForm(){
   $('#sProvider').value = S.provider; $('#sKey').value = S.key; $('#sCustom').value = S.custom;
-  $('#sBase').value = S.base; $('#sInput').value = S.input; $('#sScreen').value = S.screen; $('#sPersona').value = S.persona; $('#customPersonaWrap').style.display = S.persona==='custom' ? '' : 'none'; $('#sCustomPersona').value = S.customPersona; $('#sCustomFace').value = S.customFace; $('#sEyeStyle').value = S.eyeStyle; $('#sBg').value = S.bg; $('#sTheme').value = S.theme; $('#sEye').value = S.eye; $('#sGlint').value = S.glint; $('#sLang').value = S.lang; $('#sRate').value = S.rate; $('#sPitch').value = S.pitch;
+  $('#sBase').value = S.base; $('#sInput').value = S.input; $('#sScreen').value = S.screen; $('#sPersona').value = S.persona; $('#customPersonaWrap').style.display = S.persona==='custom' ? '' : 'none'; $('#sCustomPersona').value = S.customPersona; $('#sCustomFace').value = S.customFace; $('#sEyeStyle').value = S.eyeStyle; $('#sBg').value = S.bg; $('#sPic').value = S.picEngine; $('#sTheme').value = S.theme; $('#sEye').value = S.eye; $('#sGlint').value = S.glint; $('#sLang').value = S.lang; $('#sRate').value = S.rate; $('#sPitch').value = S.pitch;
   fillModels();
 }
 $('#sProvider').onchange = e => { S.provider = e.target.value; S.model=''; fillModels(); save(); applyUI(); };
@@ -1764,6 +1844,7 @@ $('#sCustomPersona').oninput = e => { S.customPersona = e.target.value; save(); 
 $('#sCustomFace').onchange = e => { S.customFace = e.target.value; applyPersona(); save(); };
 $('#sEyeStyle').onchange = e => { S.eyeStyle = e.target.value; save(); applyLook(); chirp('pop'); };
 $('#sBg').onchange       = e => { S.bg = e.target.value; save(); applyLook(); };
+$('#sPic').onchange      = e => { S.picEngine = e.target.value; save(); };
 $('#sVoice').onchange    = e => { S.voiceName = e.target.value; save(); };
 $('#bVoiceTest').onclick = () => { openPanel(false); setTimeout(()=>say(S.lang==='pt-BR' ? 'Oi! Essa é a minha voz. Gostou?' : "Hi! This is my voice. Do you like it?", {mood:'happy'}), 300); };
 $('#sTheme').onchange    = e => { S.theme = e.target.value; save(); applyLook(); };
@@ -1818,6 +1899,11 @@ window.tyolaState = () => ({busy: st.busy, talking: st.talking, mood: st.mood});
 
 /* ================== DESENHOS E MEMÓRIA (tela) ================== */
 function svgUrl(svg){ return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg); }
+function showPicture(url, prompt){
+  $('#drawImg').innerHTML = ''; const im = new Image(); im.alt = 'Tyola picture'; im.src = url; $('#drawImg').appendChild(im);
+  $('#drawCap').textContent = '🎨 ' + (prompt || 'Tyola picture') + ' · press and hold to save';
+  $('#drawing').classList.add('open');
+}
 function showDrawing(svg, prompt){
   $('#drawImg').innerHTML = ''; const im = new Image(); im.alt = 'Tyola drawing'; im.src = svgUrl(svg); $('#drawImg').appendChild(im);
   $('#drawCap').textContent = '🎨 ' + (prompt || 'Tyola drawing') + ' · press and hold to save';
@@ -1829,7 +1915,9 @@ function memUI(){
   const ml = $('#memList'); if (!ml) return;
   ml.innerHTML = MEM.facts.length ? MEM.facts.slice().reverse().map(f=>'• '+esc(f.text)).join('<br>') : '<i>Nothing yet. Turn on Tyola+ and tell her about you!</i>';
   $('#memGallery').innerHTML = '';
-  MEM.images.slice().reverse().forEach(img => { const i = new Image(); i.src = svgUrl(img.svg); i.title = img.prompt; i.onclick = () => { openPanel(false); showDrawing(img.svg, img.prompt); }; $('#memGallery').appendChild(i); });
+  // miniaturas só com o menu aberto (cada imagem do Pollinations baixada de novo gasta o limite de 1 a cada 15 s)
+  if (!$('#panel').classList.contains('open')) return;
+  MEM.images.slice().reverse().forEach(img => { const i = new Image(); i.loading = 'lazy'; i.src = img.url || svgUrl(img.svg); i.title = img.prompt; i.onclick = () => { openPanel(false); img.url ? showPicture(img.url, img.prompt) : showDrawing(img.svg, img.prompt); }; $('#memGallery').appendChild(i); });
 }
 $('#bForget').onclick = () => { memForget(); history = []; $('#memList').innerHTML = '<i>Forgotten. Fresh start!</i>'; };
 memUI();
