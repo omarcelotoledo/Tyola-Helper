@@ -185,6 +185,18 @@ body.typing #caption{bottom:auto;top:calc(124px + env(safe-area-inset-top))}
   background:#18171d;box-shadow:inset 0 0 0 3px #46434f}
 body.iphone8{background:#05020d}
 body.iphone8 #stage{border-radius:0;box-shadow:0 0 0 1px rgba(214,190,255,.18)}
+#drawing{position:absolute;inset:0;z-index:7;display:none;place-items:center;background:rgba(10,2,30,.55);padding:14px}
+#drawing.open{display:grid}
+#drawing .frame{background:#fff;border-radius:18px;padding:12px;box-shadow:0 10px 50px rgba(120,60,255,.6);max-width:min(560px,92%);width:100%;text-align:center;
+  border:6px solid #e9dcff;animation:popIn .35s cubic-bezier(.2,1.6,.4,1)}
+@keyframes popIn{from{transform:scale(.6) rotate(-4deg);opacity:0}to{transform:none;opacity:1}}
+#drawImg img{width:100%;height:auto;max-height:62vh;border-radius:10px;display:block;-webkit-user-select:auto;user-select:auto;-webkit-touch-callout:default}
+#drawCap{color:#3a12a0;font-weight:700;font-size:14px;margin:8px 0}
+#drawing .row{display:flex;gap:8px;justify-content:center}
+#drawing button{border:0;border-radius:10px;padding:9px 16px;font-weight:800;background:#a77bff;color:#fff;font-size:15px}
+#memList{font-size:12.5px;line-height:1.45;color:#e3d6ff;max-height:150px;overflow:auto;background:rgba(0,0,0,.18);border-radius:10px;padding:8px 10px;margin-top:6px}
+#memGallery{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+#memGallery img{width:64px;height:48px;border-radius:8px;background:#fff;object-fit:cover;cursor:pointer}
 #rotate{position:absolute;inset:0;z-index:30;display:none;place-items:center;text-align:center;
   background:#0d0638;color:var(--soft);font-size:17px;padding:30px}
 @media (orientation:portrait) and (max-width:600px){#rotate{display:grid}}
@@ -210,6 +222,8 @@ body.iphone8 #stage{border-radius:0;box-shadow:0 0 0 1px rgba(214,190,255,.18)}
   <div id="fxGrid"><div id="fxSun"></div><div id="fxFloor"><div id="fxFloorIn"></div></div></div>
   <div id="fxBubbles"></div>
   <div id="timer"></div>
+  <div id="drawing"><div class="frame"><div id="drawImg"></div><div id="drawCap"></div>
+    <div class="row"><button id="drawClose" type="button">Close</button></div></div></div>
   <svg id="face" viewBox="0 0 667 375" preserveAspectRatio="none">
     <defs>
       <radialGradient id="irisGrad" cx="40%" cy="35%" r="75%">
@@ -236,6 +250,8 @@ body.iphone8 #stage{border-radius:0;box-shadow:0 0 0 1px rgba(214,190,255,.18)}
         <stop offset=".55" stop-color="#b48cff" stop-opacity=".12"/>
         <stop offset="1" stop-color="#b48cff" stop-opacity="0"/>
       </radialGradient>
+      <clipPath id="scleraClipRound"><ellipse cx="0" cy="0" rx="80" ry="94"/></clipPath>
+      <clipPath id="scleraClipBox"><rect x="-82" y="-86" width="164" height="172" rx="34"/></clipPath>
       <clipPath id="lidClip"><path id="lidPath" d="M-120 -120 L120 -120 L120 120 L-120 120 Z"/></clipPath>
     </defs>
 
@@ -332,9 +348,16 @@ body.iphone8 #stage{border-radius:0;box-shadow:0 0 0 1px rgba(214,190,255,.18)}
               d="M0 -13 L3.8 -4 L13 -4 L5.6 2 L8.4 11.5 L0 6 L-8.4 11.5 L-5.6 2 L-13 -4 L-3.8 -4 Z"/>
             <circle cx="16" cy="18" r="5" fill="#fff" opacity=".7"/>
           </g>
+          <!-- contorno: sempre em volta do olho inteiro, inclusive onde a pálpebra corta -->
+          <g id="outline" fill="none" stroke="#d7c2ff" stroke-linejoin="round">
+            <ellipse id="olRound" cx="0" cy="0" rx="80" ry="94" stroke-width="5"/>
+            <rect id="olBox" x="-82" y="-86" width="164" height="172" rx="34" stroke-width="5" style="display:none"/>
+            <g id="edgeRound" clip-path="url(#scleraClipRound)"><path class="lidEdge" d="" stroke-width="10"/></g>
+            <g id="edgeBox" clip-path="url(#scleraClipBox)" style="display:none"><path class="lidEdge" d="" stroke-width="10"/></g>
+          </g>
         </g>
       </g>
-      <path id="brow" d="M-62 -128 Q0 -146 62 -128" fill="none" stroke="#f6f0ff" stroke-width="11" stroke-linecap="round" opacity="0"/>
+      <path id="brow" d="" fill="none" opacity="0" style="display:none"/>
       <text id="qmark" x="96" y="-70" font-size="64" font-weight="900" fill="#ffd84d" font-family="-apple-system,system-ui,sans-serif" opacity="0">?</text>
       <path id="chevron" d="M30 -46 L-34 0 L30 46" fill="none" stroke="#f3f0ff" stroke-width="12"
         stroke-linecap="round" stroke-linejoin="round" opacity="0"/>
@@ -388,7 +411,7 @@ body.iphone8 #stage{border-radius:0;box-shadow:0 0 0 1px rgba(214,190,255,.18)}
   <div id="shade"></div>
   <aside id="panel">
     <h2>Tyola</h2>
-    <div class="sub">Settings · say it “Tie-oh-la” · <b>v1.1</b></div>
+    <div class="sub">Settings · say it “Tie-oh-la” · <b id="verLabel">v1.2</b></div>
 
     <h3>Show time</h3>
     <button class="btn present" id="bPresent" type="button">▶ Presentation mode</button>
@@ -421,6 +444,12 @@ body.iphone8 #stage{border-radius:0;box-shadow:0 0 0 1px rgba(214,190,255,.18)}
     </div>
     <button class="btn primary" id="bTestKey" type="button">Test connection</button>
     <div id="keyStatus"></div>
+
+    <h3>Tyola+ memory</h3>
+    <div class="hint" style="margin-top:0">What Tyola remembers. It's saved only on this device and is used only when Tyola+ is on.</div>
+    <div id="memList"></div>
+    <div id="memGallery"></div>
+    <div class="row" style="margin-top:8px"><button id="bForget" type="button">🧹 Forget everything</button></div>
 
     <h3>Her look</h3>
     <label for="sEyeStyle">Eye style</label>
@@ -602,6 +631,47 @@ body.iphone8 #stage{border-radius:0;box-shadow:0 0 0 1px rgba(214,190,255,.18)}
 'use strict';
 const $ = s => document.querySelector(s);
 
+/* ================== MEMÓRIA DA TYOLA+ ==================
+   Fica salva neste aparelho. Só é usada (e mencionada) quando a Tyola+ está ligada. */
+const MEM_KEY = 'tyola.memory';
+let MEM = {facts:[], images:[], history:[], lastVersion:''};
+try{ MEM = {...MEM, ...JSON.parse(localStorage.getItem(MEM_KEY)||'{}')}; }catch(e){}
+function memSave(){
+  try{ localStorage.setItem(MEM_KEY, JSON.stringify(MEM)); }
+  catch(e){ MEM.images = MEM.images.slice(-3); try{ localStorage.setItem(MEM_KEY, JSON.stringify(MEM)); }catch(_){} }
+}
+function memAddFact(f){
+  f = String(f).replace(/\s+/g,' ').trim().slice(0,160); if (!f) return;
+  const low = f.toLowerCase();
+  if (MEM.facts.some(x=>x.text.toLowerCase()===low)) return;
+  MEM.facts.push({text:f, t:Date.now()}); MEM.facts = MEM.facts.slice(-40); memSave(); memUI();
+}
+function memForget(){ MEM = {facts:[], images:[], history:[], lastVersion:MEM.lastVersion}; memSave(); memUI(); }
+
+/* ================== VERSÃO E HISTÓRICO DE UPDATES ==================
+   A Tyola conhece as próprias atualizações (funciona com ou sem a Tyola+).
+   A cada versão nova, coloque um item NO TOPO desta lista. */
+const VERSION = '1.2';
+const CHANGELOG = [
+  {v:'1.2', en:['a memory: with Tyola plus on, I remember what you tell me, even after closing the app',
+                'I can draw pictures for you, and remember them later',
+                'my eye always has its outline now, and I lost my eyebrow'],
+            pt:['memória: com a Tyola mais ligada, eu lembro do que você me conta, mesmo depois de fechar o app',
+                'eu sei fazer desenhos pra você, e lembro deles depois',
+                'meu olho agora sempre tem contorno, e eu perdi a sobrancelha']},
+  {v:'1.1', en:['the whole app in English','seven eye styles, like cat, robot, spiral and galaxy','new backgrounds like space and a retro grid',
+                'new faces: angry, confused and wink','the plus button that turns my AI brain on and off','a personality you can write yourself'],
+            pt:['o app todo em inglês','sete estilos de olho, tipo gato, robô, espiral e galáxia','fundos novos, tipo espaço e grade retrô',
+                'caras novas: brava, confusa e piscadinha','o botão de mais que liga e desliga meu cérebro de IA','uma personalidade que você mesmo escreve']},
+  {v:'1.0', en:['my face, my emotions and my voice','timer, dancing and walks on my mBot','the PC link and presentation mode'],
+            pt:['meu rosto, minhas emoções e minha voz','timer, dança e passeios no meu mBot','a conexão com o PC e o modo apresentação']}
+];
+function joinList(a, pt){ return a.length<2 ? a.join('') : a.slice(0,-1).join(', ') + (pt?' e ':' and ') + a[a.length-1]; }
+function describeUpdate(i){
+  const c = CHANGELOG[i], pt = S.lang==='pt-BR'; if (!c) return pt ? 'Antes disso eu ainda nem existia!' : "Before that, I didn't even exist yet!";
+  return (pt ? `Na versão ${c.v} eu ganhei ` : `In version ${c.v} I got `) + joinList(pt?c.pt:c.en, pt) + '.';
+}
+
 /* ================== CONFIGURAÇÕES (salvas só no aparelho) ================== */
 const DEFAULTS = {
   provider:'app', key:'', model:'quick', custom:'',
@@ -765,16 +835,18 @@ function applyLook(){
   document.getElementById('irisBase').style.display = ['classic','cat','spiral','ring'].includes(S.eyeStyle) ? '' : 'none';
   document.getElementById('scleraRound').style.display = S.eyeStyle==='robot' ? 'none' : '';
   document.getElementById('scleraBox').style.display = S.eyeStyle==='robot' ? '' : 'none';
+  const robot = S.eyeStyle==='robot';
+  document.getElementById('olRound').style.display = robot ? 'none' : '';
+  document.getElementById('olBox').style.display = robot ? '' : 'none';
+  document.getElementById('edgeRound').style.display = robot ? 'none' : '';
+  document.getElementById('edgeBox').style.display = robot ? '' : 'none';
   const c = IRIS[S.eye] || IRIS.roxo;
   document.querySelectorAll('#irisGrad stop').forEach((st_,i)=>st_.setAttribute('stop-color', c[i]));
   const tc = document.querySelector('meta[name=theme-color]'); if (tc) tc.setAttribute('content', getComputedStyle(document.body).getPropertyValue('--bg3').trim() || '#1a0f5c');
 }
 
 // sobrancelha (só aparece nas expressões fortes) e tamanho da pupila
-const BROWS = {
-  angry:{o:1, y:34, tilt:-20, curve:-4}, sad:{o:1, y:14, tilt:15, curve:6}, surprised:{o:1, y:-4, tilt:0, curve:12},
-  confused:{o:1, y:4, tilt:-13, curve:9}, think:{o:.85, y:6, tilt:-8, curve:8}
-};
+const BROWS = {};  // v1.2: sobrancelha removida
 const PUPIL = {surprised:.6, love:1.2, happy:1.12, listen:1.15, angry:.78, sad:1.1, think:.9, confused:.85};
 
 /* ================== ELEMENTOS SVG ================== */
@@ -808,6 +880,7 @@ for (let i=0;i<4;i++){
 }
 const RINGS = [0,1,2].map(()=>{ const c=document.createElementNS('http://www.w3.org/2000/svg','circle'); c.setAttribute('cx',0); c.setAttribute('cy',-40); E.micRings.appendChild(c); return c; });
 const PUPILS = [...document.querySelectorAll('#iris .pupil')];
+const LID_EDGES = [...document.querySelectorAll('.lidEdge')];
 let lastInteract = performance.now(), presenting = false, lastMoodAttr = '';
 st.danceUntil = 0; st.walkUntil = 0;
 const DASHES = [], SPEEDS = [];
@@ -896,7 +969,9 @@ function frame(now){
 
   // --- pálpebras (clip)
   const tl=cur.topL, tr=cur.topR, b=cur.bot, c=cur.curve;
-  setA(E.lid, 'd', `M-120 ${tl.toFixed(1)} L120 ${tr.toFixed(1)} L120 ${b.toFixed(1)} Q0 ${(b-2*c).toFixed(1)} -120 ${b.toFixed(1)} Z`);
+  const lidD = `M-120 ${tl.toFixed(1)} L120 ${tr.toFixed(1)} L120 ${b.toFixed(1)} Q0 ${(b-2*c).toFixed(1)} -120 ${b.toFixed(1)} Z`;
+  setA(E.lid, 'd', lidD);
+  for (const le of LID_EDGES) setA(le, 'd', lidD);
   setA(E.sleepLid, 'opacity', Math.max(0,(cur.sleep-.5)*2).toFixed(2));
   setA(E.eyeOpen, 'opacity', (1-Math.max(0,(cur.sleep-.5)*2)).toFixed(2));
 
@@ -1166,8 +1241,20 @@ function tipKeyboardMic(){
 function stopListening(){ try{ rec && rec.stop(); }catch(e){} }
 
 /* ================== CÉREBRO ================== */
-let history = [];
-function systemPrompt(){
+let history = Array.isArray(MEM.history) ? MEM.history.slice(-12) : [];
+const wantsDrawing = t => /\b(draw|drawing|picture|image|illustration|sketch|paint|desenh\w*|imagem|ilustra\w*|figura|gera(r)? uma|generate)\b/i.test(t||'');
+function memoryPrompt(text){
+  let m = `\nYour version is v${VERSION}. Your update history (newest first): ` + CHANGELOG.map(c=>`v${c.v}: ${c.en.join('; ')}`).join(' | ') + '.';
+  if (MEM.facts.length) m += '\nThings you remember about the user and your past chats (use them naturally when relevant, do not list them all): ' + MEM.facts.map(f=>'- '+f.text).join(' ');
+  if (MEM.images.length){
+    m += '\nDrawings you made before (oldest first): ' + MEM.images.map((im,i)=>`#${i+1} "${im.prompt}"`).join(', ') + '.';
+    if (wantsDrawing(text)){ const last = MEM.images[MEM.images.length-1]; m += `\nThe SVG of your most recent drawing (#${MEM.images.length}), in case they want something similar:\n` + last.svg.slice(0,5000); }
+  }
+  m += '\nIf the user tells you something worth remembering long-term (their name, likes, plans, things you made together), add <remember>short fact in English</remember> at the very end (not spoken). Use it at most once per reply.';
+  m += '\nIf the user asks you to draw, create or generate an image or picture, say one short sentence and then add ONE drawing at the very end: a complete <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">...</svg>, a cute, colorful, flat vector illustration with a background, under 4000 characters, no text, no scripts, no external images. You cannot make photos, only drawings like this.';
+  return m;
+}
+function systemPrompt(text){
   const lang = S.lang==='pt-BR' ? 'português do Brasil' : 'English';
   return `You are Tyola (spelled T-Y-O-L-A, pronounced "Tai-oh-la"), a small, cheerful robot helper who lives inside an old iPhone standing on a 3D-printed base. Your face is a wrench on the left, one big eye with a star in it, and a little mouth. You were created by Theo, a student from Brazil, as a school project about inventions that don't exist yet. You can (pretend to) control the user's computer by voice and you answer questions quickly.
 Always answer in ${lang}.
@@ -1182,7 +1269,7 @@ You ARE connected to the user's computer right now. When you use [creating], als
 <pc>{"cmd":"search","q":"search words"}</pc>  to search on Google,
 <pc>{"cmd":"type","text":"text to type"}</pc>  to type text on the computer,
 <pc>{"cmd":"app","name":"calculator|notepad|paint|explorer|minecraft|settings","label":"App name"}</pc>  to open one of those apps.
-Only use those commands. If what they ask is not possible with them, say so kindly and do not add a command.` : ''}`;
+Only use those commands. If what they ask is not possible with them, say so kindly and do not add a command.` : ''}${memoryPrompt(text)}`;
 }
 
 async function askAI(text){
@@ -1191,14 +1278,14 @@ async function askAI(text){
   const model = modelName();
   let reply;
   if (S.provider==='app'){
-    const r = await sampleFn([{role:'user', content: systemPrompt()}, ...history], {modelTier: S.model, cache:false});
+    const r = await sampleFn([{role:'user', content: systemPrompt(text)}, ...history], {modelTier: wantsDrawing(text) && S.model==='quick' ? 'default' : S.model, cache:false});
     reply = r.text;
   } else if (S.provider==='anthropic'){
     const r = await fetch('https://api.anthropic.com/v1/messages',{
       method:'POST',
       headers:{'content-type':'application/json','x-api-key':S.key.trim(),'anthropic-version':'2023-06-01',
                'anthropic-dangerous-direct-browser-access':'true'},
-      body:JSON.stringify({model, max_tokens:220, system:systemPrompt(), messages:history})
+      body:JSON.stringify({model, max_tokens: wantsDrawing(text) ? 3000 : 400, system:systemPrompt(text), messages:history})
     });
     if (!r.ok) throw Object.assign(new Error('http'),{status:r.status, body:await r.text().catch(()=>'')});
     const d = await r.json();
@@ -1207,18 +1294,33 @@ async function askAI(text){
     const r = await fetch(S.base.trim(),{
       method:'POST',
       headers:{'content-type':'application/json','authorization':'Bearer '+S.key.trim()},
-      body:JSON.stringify({model, max_tokens:220, messages:[{role:'system',content:systemPrompt()}, ...history]})
+      body:JSON.stringify({model, max_tokens: wantsDrawing(text) ? 3000 : 400, messages:[{role:'system',content:systemPrompt(text)}, ...history]})
     });
     if (!r.ok) throw Object.assign(new Error('http'),{status:r.status, body:await r.text().catch(()=>'')});
     const d = await r.json();
     reply = d.choices && d.choices[0] && d.choices[0].message ? d.choices[0].message.content : '';
   }
   reply = (reply||'').trim();
-  history.push({role:'assistant', content:reply});
+  history.push({role:'assistant', content: reply.replace(/<svg[\s\S]*<\/svg>/i,'[drawing]').slice(0,1500)});
+  MEM.history = history.slice(-12); memSave();
   return parseReply(reply);
 }
+function sanitizeSvg(raw){
+  try{
+    const doc = new DOMParser().parseFromString(raw, 'image/svg+xml');
+    const svg = doc.documentElement; if (!svg || svg.nodeName.toLowerCase()!=='svg' || doc.querySelector('parsererror')) return null;
+    svg.querySelectorAll('script,foreignObject,iframe,image,use,a').forEach(n=>n.remove());
+    svg.querySelectorAll('*').forEach(n=>{ for (const at of [...n.attributes]) if (/^on/i.test(at.name) || /href/i.test(at.name)) n.removeAttribute(at.name); });
+    if (!svg.getAttribute('viewBox')) svg.setAttribute('viewBox','0 0 400 300');
+    svg.setAttribute('xmlns','http://www.w3.org/2000/svg');
+    return new XMLSerializer().serializeToString(svg);
+  }catch(e){ return null; }
+}
 function parseReply(txt){
-  let pc = null;
+  let pc = null, drawing = null;
+  txt = txt.replace(/<remember>([\s\S]*?)<\/remember>/gi, (_, f) => { memAddFact(f); return ''; });
+  const sv = txt.match(/<svg[\s\S]*<\/svg>/i);
+  if (sv){ drawing = sanitizeSvg(sv[0]); txt = txt.replace(sv[0], ''); }
   const pm = txt.match(/<pc>([\s\S]*?)<\/pc>/i);
   if (pm){ try{ pc = JSON.parse(pm[1]); }catch(e){} txt = txt.replace(pm[0], ''); }
   if (pc && !['open','search','type','app'].includes(pc.cmd)) pc = null;
@@ -1228,7 +1330,7 @@ function parseReply(txt){
   let text = (m ? txt.slice(m[0].length) : txt).replace(/\[(\w+)\]/g,'').replace(/[*_#`]/g,'').trim();
   const map = {happy:'happy',feliz:'happy',sad:'sad',triste:'sad',creating:'create',criando:'create',normal:'normal',surprised:'surprised',surpresa:'surprised',love:'love',amor:'love',dance:'dance',danca:'dance',walk:'walk',passeio:'walk',angry:'angry',bravo:'angry',confused:'confused',confuso:'confused'};
   const action = pc ? 'create' : (map[tag]||'normal');
-  return {action, text: text || '...', pc: S.linkOn ? pc : null};
+  return {action, text: text || '...', pc: S.linkOn ? pc : null, drawing};
 }
 
 // respostas prontas (sem chave)
@@ -1267,8 +1369,8 @@ function localBrain(text){
   const n = norm(text);
   for (const [re, action, pt, en] of RULES) if (re.test(n)) return {action, text: S.lang==='pt-BR'?pt:en};
   return {action:'normal', text: S.lang==='pt-BR'
-    ? "Hmm, isso eu ainda não sei. Coloca uma chave da Tyola+ no menu que eu fico bem mais esperta!"
-    : "Hmm, I don't know that one yet. Add a Tyola plus key in the menu and I'll get way smarter!"};
+    ? "Hmm, isso eu ainda não sei. Toca no botão de mais lá em cima pra ligar a Tyola mais, aí eu fico bem mais esperta!"
+    : "Hmm, I don't know that one yet. Tap the plus button up top to turn on Tyola plus, and I'll get way smarter!"};
 }
 
 /* ================== TYOLA LINK (falar com o PC) ==================
@@ -1387,6 +1489,13 @@ function localCommand(text){
     startTimer(num*(secs?1000:60000));
     return {action:'happy', text: L().timerSet(secs ? L().sec(num) : L().min(num))};
   }
+  if (/(update|atualiza|versao|version|what'?s new|whats new|o que (tem|ha) de novo|novidade)/.test(n)){
+    const prev = /(previous|before|anterior|antes|penultim)/.test(n);
+    const i = prev ? 1 : 0;
+    const pt = S.lang==='pt-BR';
+    const head = prev ? (pt?'Meu update anterior foi a versão ':'My previous update was version ') + CHANGELOG[1].v + '. ' : (pt?'Eu tô na versão ':"I'm on version ") + VERSION + '! ';
+    return {action:'happy', text: head + describeUpdate(i)};
+  }
   if (/(que horas|what time|horario agora)/.test(n)){
     const t = new Date().toLocaleTimeString(S.lang, {hour:'numeric', minute:'2-digit'});
     return {action:'normal', text: L().timeIs(t)};
@@ -1404,7 +1513,9 @@ function pcCommand(text){
 
 // pedidos que chegam enquanto ela ainda está respondendo ficam na fila (antes eram descartados)
 const pending = [];
+let lastUserText = '';
 async function handle(text){
+  lastUserText = text;
   if (st.busy){ if (pending.length < 3) pending.push(text); caption(`<span class="you">“${esc(text)}” — ${S.lang==='pt-BR'?'já já!':'one sec!'}</span>`, 2500); return; }
   st.busy = true; lastInteract = performance.now();
   caption(`<span class="you">“${esc(text)}”</span>`);
@@ -1413,7 +1524,7 @@ async function handle(text){
   try{
     res = localCommand(text) || pcCommand(text);
     if (res) await new Promise(r=>setTimeout(r,350));
-    else if (hasAI()) res = await askAI(text);
+    else if (hasAI()){ if (wantsDrawing(text)){ st.tool='mouse'; caption(`<span class="you">${S.lang==='pt-BR'?'Desenhando…':'Drawing…'}</span>`); } res = await askAI(text); st.tool='wrench'; }
     else { await new Promise(r=>setTimeout(r,600)); res = localBrain(text); }
   }catch(e){
     history.pop();
@@ -1435,7 +1546,8 @@ async function handle(text){
   if (pending.length) setTimeout(()=>handle(pending.shift()), 300);
 }
 
-async function act({action, text, pc}){
+async function act({action, text, pc, drawing}){
+  if (drawing){ showDrawing(drawing, lastUserText); MEM.images.push({prompt:lastUserText.slice(0,120), svg:drawing.slice(0,9000), t:Date.now()}); MEM.images = MEM.images.slice(-8); memSave(); memUI(); }
   if (action==='create'){
     st.tool = 'mouse'; st.mood = 'normal';
     let sent = true;
@@ -1546,7 +1658,7 @@ function lookAtPoint(cx, cy){
   st.lookT.y = Math.max(-1, Math.min(1, (p.y-EYE.y)/160));
   st.lookHold = performance.now() + 1600;
 }
-const isUI = el => el.closest('#bar,#panel,#typebox,#shade,#boot,#help,#timer');
+const isUI = el => el.closest('#bar,#panel,#typebox,#shade,#boot,#help,#timer,#drawing');
 stage.addEventListener('pointermove', e => { if (!isUI(e.target) && st.mood!=='sleep') lookAtPoint(e.clientX, e.clientY); });
 stage.addEventListener('pointerdown', e => {
   if (isUI(e.target) || !booted) return;
@@ -1701,6 +1813,27 @@ document.querySelectorAll('[data-test]').forEach(b => b.onclick = () => {
   }, 300);
 });
 
+// estado pra testes automáticos (só leitura)
+window.tyolaState = () => ({busy: st.busy, talking: st.talking, mood: st.mood});
+
+/* ================== DESENHOS E MEMÓRIA (tela) ================== */
+function svgUrl(svg){ return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg); }
+function showDrawing(svg, prompt){
+  $('#drawImg').innerHTML = ''; const im = new Image(); im.alt = 'Tyola drawing'; im.src = svgUrl(svg); $('#drawImg').appendChild(im);
+  $('#drawCap').textContent = '🎨 ' + (prompt || 'Tyola drawing') + ' · press and hold to save';
+  $('#drawing').classList.add('open');
+}
+$('#drawClose').onclick = () => $('#drawing').classList.remove('open');
+$('#drawing').addEventListener('click', e => { if (e.target.id==='drawing') $('#drawing').classList.remove('open'); });
+function memUI(){
+  const ml = $('#memList'); if (!ml) return;
+  ml.innerHTML = MEM.facts.length ? MEM.facts.slice().reverse().map(f=>'• '+esc(f.text)).join('<br>') : '<i>Nothing yet. Turn on Tyola+ and tell her about you!</i>';
+  $('#memGallery').innerHTML = '';
+  MEM.images.slice().reverse().forEach(img => { const i = new Image(); i.src = svgUrl(img.svg); i.title = img.prompt; i.onclick = () => { openPanel(false); showDrawing(img.svg, img.prompt); }; $('#memGallery').appendChild(i); });
+}
+$('#bForget').onclick = () => { memForget(); history = []; $('#memList').innerHTML = '<i>Forgotten. Fresh start!</i>'; };
+memUI();
+
 /* ================== LIGAR ================== */
 let booted = false, wakeLock = null;
 async function keepAwake(){ try{ if ('wakeLock' in navigator) wakeLock = await navigator.wakeLock.request('screen'); }catch(e){} }
@@ -1714,7 +1847,10 @@ $('#boot').addEventListener('click', () => {
   keepAwake();
   $('#boot').classList.add('hide');
   setTimeout(()=>{ st.mood='normal'; st.nextBlink = performance.now()+900; }, 400);
-  setTimeout(()=> say(L().hello, {mood:'happy', hold:1800}), 1300);
+  const updated = MEM.lastVersion && MEM.lastVersion !== VERSION;
+  MEM.lastVersion = VERSION; memSave();
+  const hi = updated ? (S.lang==='pt-BR' ? `Oba, eu fui atualizada pra versão ${VERSION}! Quer saber o que mudou? É só perguntar.` : `Yay, I just got updated to version ${VERSION}! Want to know what changed? Just ask me.`) : L().hello;
+  setTimeout(()=> say(hi, {mood: updated ? 'surprised' : 'happy', hold:1800}), 1300);
 });
 
 loadForm(); fillVoices(); applyUI(); applyLook(); if (S.linkOn) linkStart(); linkUI();
