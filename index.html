@@ -311,7 +311,7 @@ body.iphone8 #stage{border-radius:0;box-shadow:0 0 0 1px rgba(214,190,255,.18)}
   <div id="shade"></div>
   <aside id="panel">
     <h2>Tyola</h2>
-    <div class="sub">Configurações · pronuncia-se “Tai-ou-la”</div>
+    <div class="sub">Configurações · pronuncia-se “Tai-ou-la” · <b>v1.0</b></div>
 
     <h3>Apresentação</h3>
     <button class="btn present" id="bPresent" type="button">▶ Modo apresentação</button>
@@ -920,7 +920,8 @@ function listen(){
     rec.onend = finish;
     let started = false;
     rec.onstart = rec.onaudiostart = () => { started = true; };
-    setTimeout(()=>{ if (!started && !ended){ errCode = 'no-start'; try{ rec && rec.abort(); }catch(_){} finish(); } }, 1800);
+    // no app do Claude o reconhecimento nunca começa → desiste rápido; no site, espera a pessoa tocar em "Permitir"
+    setTimeout(()=>{ if (!started && !ended){ errCode = 'no-start'; try{ rec && rec.abort(); }catch(_){} finish(); } }, FRAMED ? 1800 : 15000);
     rec.addEventListener('error', () => setTimeout(finish, 400)); // se o onend não vier
     rec.start();
     maxTimer = setTimeout(()=>{ try{rec && rec.stop();}catch(_){} setTimeout(finish, 800); }, 9000);
