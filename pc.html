@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tyola PC</title>
+<style>
+:root{--bg1:#7a3cf5;--bg2:#4a1cb8;--bg3:#17073f;--ink:#f6f0ff;--soft:#d3bfff;--glow:#a77bff}
+*{box-sizing:border-box;margin:0;padding:0}
+html{background:#17073f}
+body{min-height:100vh;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;color:var(--ink);
+  background:radial-gradient(120% 100% at 55% 20%,var(--bg1) 0%,var(--bg2) 45%,var(--bg3) 100%) fixed;padding:28px 18px 60px}
+main{max-width:860px;margin:0 auto;display:grid;gap:18px}
+header{display:flex;align-items:center;gap:16px}
+header svg{width:92px;height:auto;flex:none}
+h1{font-size:30px;letter-spacing:.5px}
+h1 span{color:var(--soft);font-weight:600;font-size:18px;display:block;letter-spacing:0}
+.card{background:rgba(30,8,80,.6);border:1px solid rgba(214,190,255,.25);border-radius:18px;padding:18px;box-shadow:0 8px 30px rgba(60,20,160,.35)}
+.card h2{font-size:17px;margin-bottom:10px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+input{font-size:22px;letter-spacing:4px;text-transform:uppercase;padding:12px 14px;border-radius:12px;border:1px solid rgba(214,190,255,.35);
+  background:rgba(255,255,255,.08);color:var(--ink);width:220px;outline:none;font-weight:800}
+button{border:0;border-radius:12px;padding:12px 18px;font-size:16px;font-weight:700;background:var(--glow);color:#fff;cursor:pointer}
+button.ghost{background:rgba(255,255,255,.12)}
+button:active{transform:scale(.98)}
+#status{font-weight:700}
+.hint{font-size:13.5px;color:#d9ccff;line-height:1.5;margin-top:10px}
+.hint b{color:#fff}
+#log{display:grid;gap:8px;max-height:330px;overflow:auto}
+.item{display:flex;gap:12px;align-items:center;background:rgba(255,255,255,.07);border-radius:12px;padding:10px 12px}
+.item .what{flex:1;font-size:15px;word-break:break-word}
+.item small{display:block;color:var(--soft);font-size:12px}
+.empty{color:var(--soft);font-size:14px}
+textarea{width:100%;min-height:120px;font-size:17px;padding:12px;border-radius:12px;border:1px solid rgba(214,190,255,.3);
+  background:rgba(255,255,255,.07);color:var(--ink);resize:vertical;font-family:inherit}
+#flash{position:fixed;left:50%;top:18px;transform:translate(-50%,-150%);transition:transform .3s;background:#fff;color:#3a12a0;
+  font-weight:800;padding:12px 20px;border-radius:14px;box-shadow:0 8px 30px rgba(0,0,0,.35);z-index:9;max-width:90vw}
+#flash.on{transform:translate(-50%,0)}
+.blink{transform-box:fill-box;transform-origin:center;animation:bl 4s infinite}
+@keyframes bl{0%,93%,100%{transform:scaleY(1)}96%{transform:scaleY(.08)}}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:#ffcf4d;margin-right:6px}
+.dot.on{background:#4dffa0;box-shadow:0 0 10px #4dffa0}
+.dot.off{background:#ff6b8a}
+</style>
+</head>
+<body>
+<div id="flash"></div>
+<main>
+  <header>
+    <svg viewBox="0 0 200 120" aria-hidden="true">
+      <defs><radialGradient id="ir" cx="40%" cy="35%" r="75%"><stop offset="0" stop-color="#9a6bff"/><stop offset=".6" stop-color="#4a1cc8"/><stop offset="1" stop-color="#170548"/></radialGradient></defs>
+      <g transform="translate(50 58) scale(.36)"><path fill="#f3edff" stroke="#8a5cf0" stroke-width="7" d="M-58 -88 L-48 -104 L-26 -104 L-26 -44 Q-26 -22 0 -22 Q26 -22 26 -44 L26 -104 L48 -104 L58 -88 L58 -26 Q58 8 18 16 L18 118 Q18 132 0 132 Q-18 132 -18 118 L-18 16 Q-58 8 -58 -26 Z"/></g>
+      <g transform="translate(145 50)"><g class="blink" id="eye"><ellipse rx="34" ry="40" fill="#f8f4ff" stroke="#d7c2ff" stroke-width="3"/><g id="iris"><ellipse rx="21" ry="26" fill="url(#ir)"/><circle cx="-7" cy="-10" r="5" fill="#fff"/></g></g></g>
+      <path d="M86 102 Q100 112 114 102" fill="none" stroke="#f6f0ff" stroke-width="5" stroke-linecap="round"/>
+    </svg>
+    <h1>Tyola PC<span>a Tyola manda, este computador obedece</span></h1>
+  </header>
+
+  <section class="card">
+    <h2>1. Conectar</h2>
+    <div class="row">
+      <input id="code" placeholder="XXXX-XXXX" maxlength="9" autocomplete="off">
+      <button id="connect">Conectar</button>
+      <span id="status"><span class="dot off"></span>desconectado</span>
+    </div>
+    <p class="hint">O código aparece na Tyola: menu ☰ › <b>Conectar ao PC</b> › Ligar conexão. Deixe esta página aberta (pode minimizar).</p>
+  </section>
+
+  <section class="card">
+    <h2>2. Deixar a Tyola abrir sites</h2>
+    <div class="row"><button class="ghost" id="testPop">Testar abrir uma aba</button></div>
+    <p class="hint">O navegador bloqueia abas abertas sozinhas. Na primeira vez, clique no ícone de <b>pop-up bloqueado</b> na barra de endereço e escolha <b>“Sempre permitir pop-ups deste site”</b>. Se ainda bloquear, os comandos aparecem abaixo com um botão <b>Abrir</b>.</p>
+  </section>
+
+  <section class="card">
+    <h2>Pedidos da Tyola</h2>
+    <div id="log"><p class="empty">Nada ainda. Fale pra Tyola: “open YouTube”, “search for cats”, “type hello world”…</p></div>
+  </section>
+
+  <section class="card">
+    <h2>O que a Tyola escreveu</h2>
+    <textarea id="notes" placeholder="Quando você pedir “escreve…” / “type…”, o texto aparece aqui."></textarea>
+    <div class="row" style="margin-top:10px"><button class="ghost" id="copy">Copiar</button><button class="ghost" id="clear">Limpar</button></div>
+    <p class="hint">Pra Tyola <b>abrir programas</b> (calculadora, bloco de notas, Minecraft…) e <b>digitar em qualquer janela</b>, rode o programinha <b>tyola_pc.py</b> neste computador. Navegador nenhum tem permissão pra isso.</p>
+  </section>
+</main>
+
+<script>
+(() => {
+'use strict';
+const $ = s => document.querySelector(s);
+let es = null, topic = '', beat = null, lastFromTyola = 0;
+
+function flash(t){ const f=$('#flash'); f.textContent=t; f.classList.add('on'); clearTimeout(flash.t); flash.t=setTimeout(()=>f.classList.remove('on'),3000); }
+function setStatus(state, text){ $('#status').innerHTML = `<span class="dot ${state}"></span>${text}`; }
+function clean(c){ c = c.toUpperCase().replace(/[^A-Z0-9]/g,''); return c.length===8 ? c.slice(0,4)+'-'+c.slice(4) : null; }
+async function send(obj){ try{ await fetch('https://ntfy.sh/'+topic, {method:'POST', body: JSON.stringify({from:'pc', ...obj})}); }catch(e){} }
+
+function addItem(html, btn){
+  const log = $('#log'); const e = log.querySelector('.empty'); if (e) e.remove();
+  const d = document.createElement('div'); d.className = 'item';
+  d.innerHTML = `<div class="what">${html}<small>${new Date().toLocaleTimeString()}</small></div>`;
+  if (btn){ const b = document.createElement('button'); b.textContent = btn.label; b.onclick = btn.run; d.appendChild(b); }
+  log.prepend(d);
+}
+const esc = s => String(s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+function openUrl(url, label){
+  if (!/^https?:\/\//i.test(url)) return;
+  const w = window.open(url, '_blank'); if (w) try{ w.opener = null; }catch(e){}
+  const ok = !!w;
+  addItem(`🌐 Abrir <b>${esc(label||url)}</b>${ok?'':' — <i>bloqueado pelo navegador</i>'}`, {label:'Abrir', run:()=>window.open(url,'_blank','noopener')});
+  send({type:'ack', info: ok ? `Abri ${label||'o site'}` : 'O navegador bloqueou, clique em Abrir no PC'});
+  flash(ok ? `Tyola abriu ${label||url}` : 'A Tyola quer abrir um site: clique em Abrir');
+}
+
+function handle(m){
+  if (m.from !== 'tyola') return;
+  lastFromTyola = Date.now();
+  setStatus('on', 'conectado com a Tyola');
+  if (m.type === 'ping'){ send({type:'hello'}); return; }
+  if (m.type !== 'cmd') return;
+  lookAround();
+  if (m.cmd === 'open') openUrl(String(m.url||''), m.label);
+  else if (m.cmd === 'search'){ const q = String(m.q||'').slice(0,200); openUrl('https://www.google.com/search?q='+encodeURIComponent(q), 'pesquisa: '+q); }
+  else if (m.cmd === 'type'){
+    const t = String(m.text||'').slice(0,2000);
+    const n = $('#notes'); n.value += (n.value ? '\n' : '') + t; n.scrollTop = n.scrollHeight;
+    addItem(`⌨️ Escrever: <b>${esc(t)}</b>`, {label:'Copiar', run:()=>navigator.clipboard && navigator.clipboard.writeText(t)});
+    send({type:'ack', info:'Escrevi no PC'}); flash('A Tyola escreveu: ' + t.slice(0,60));
+  }
+  else if (m.cmd === 'app'){
+    addItem(`🧩 Abrir programa: <b>${esc(m.label||m.name)}</b> — <i>precisa do tyola_pc.py</i>`);
+    flash('Pra abrir programas, rode o tyola_pc.py');
+  }
+}
+
+function connect(){
+  const c = clean($('#code').value);
+  if (!c){ flash('Digite o código de 8 letras/números da Tyola'); return; }
+  $('#code').value = c;
+  try{ localStorage.setItem('tyolapc.code', c); }catch(e){}
+  topic = 'tyola-' + c.replace('-','').toLowerCase();
+  if (es) es.close();
+  setStatus('', 'conectando…');
+  es = new EventSource('https://ntfy.sh/' + topic + '/sse');
+  es.onopen = () => { setStatus('', 'esperando a Tyola…'); send({type:'hello'}); };
+  es.onmessage = e => { let d, m; try{ d = JSON.parse(e.data); m = JSON.parse(d.message); }catch(_){ return; } if (d.event && d.event!=='message') return; handle(m); };
+  es.onerror = () => setStatus('off', 'sem conexão (tentando de novo…)');
+  clearInterval(beat); beat = setInterval(()=>send({type:'hello'}), 30000);
+}
+
+let lookT;
+function lookAround(){ const ir=$('#iris'); let i=0; clearInterval(lookT); lookT=setInterval(()=>{ ir.setAttribute('transform',`translate(${[-8,8,0][i%3]} ${[2,-3,0][i%3]})`); if(++i>5){clearInterval(lookT);ir.removeAttribute('transform');} },220); }
+
+$('#connect').onclick = connect;
+$('#code').addEventListener('keydown', e => { if (e.key==='Enter') connect(); });
+$('#testPop').onclick = () => { const w = window.open('https://www.google.com','_blank'); if (w) try{ w.opener = null; }catch(e){} flash(w ? 'Abriu! Agora libere os pop-ups quando o navegador pedir.' : 'Bloqueado: libere os pop-ups na barra de endereço'); };
+$('#copy').onclick = () => { navigator.clipboard && navigator.clipboard.writeText($('#notes').value); flash('Copiado!'); };
+$('#clear').onclick = () => { $('#notes').value = ''; };
+
+const q = new URLSearchParams(location.search).get('code');
+let saved = null; try{ saved = localStorage.getItem('tyolapc.code'); }catch(e){}
+if (q || saved){ $('#code').value = q || saved; connect(); }
+})();
+</script>
+</body>
+</html>
