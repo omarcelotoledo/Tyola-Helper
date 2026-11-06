@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -53,35 +53,35 @@ textarea{width:100%;min-height:120px;font-size:17px;padding:12px;border-radius:1
       <g transform="translate(145 50)"><g class="blink" id="eye"><ellipse rx="34" ry="40" fill="#f8f4ff" stroke="#d7c2ff" stroke-width="3"/><g id="iris"><ellipse rx="21" ry="26" fill="url(#ir)"/><circle cx="-7" cy="-10" r="5" fill="#fff"/></g></g></g>
       <path d="M86 102 Q100 112 114 102" fill="none" stroke="#f6f0ff" stroke-width="5" stroke-linecap="round"/>
     </svg>
-    <h1>Tyola PC<span>a Tyola manda, este computador obedece</span></h1>
+    <h1>Tyola PC<span>Tyola asks, this computer does it</span></h1>
   </header>
 
   <section class="card">
-    <h2>1. Conectar</h2>
+    <h2>1. Connect</h2>
     <div class="row">
       <input id="code" placeholder="XXXX-XXXX" maxlength="9" autocomplete="off">
-      <button id="connect">Conectar</button>
-      <span id="status"><span class="dot off"></span>desconectado</span>
+      <button id="connect">Connect</button>
+      <span id="status"><span class="dot off"></span>not connected</span>
     </div>
-    <p class="hint">O código aparece na Tyola: menu ☰ › <b>Conectar ao PC</b> › Ligar conexão. Deixe esta página aberta (pode minimizar).</p>
+    <p class="hint">The code shows up on Tyola: menu ☰ › <b>Connect to a PC</b> › Turn on PC link. Keep this page open (you can minimize it).</p>
   </section>
 
   <section class="card">
-    <h2>2. Deixar a Tyola abrir sites</h2>
-    <div class="row"><button class="ghost" id="testPop">Testar abrir uma aba</button></div>
-    <p class="hint">O navegador bloqueia abas abertas sozinhas. Na primeira vez, clique no ícone de <b>pop-up bloqueado</b> na barra de endereço e escolha <b>“Sempre permitir pop-ups deste site”</b>. Se ainda bloquear, os comandos aparecem abaixo com um botão <b>Abrir</b>.</p>
+    <h2>2. Let Tyola open websites</h2>
+    <div class="row"><button class="ghost" id="testPop">Test opening a tab</button></div>
+    <p class="hint">Browsers block tabs that open by themselves. The first time, click the <b>pop-up blocked</b> icon in the address bar and choose <b>“Always allow pop-ups from this site”</b>. If it still blocks them, each request shows up below with an <b>Open</b> button.</p>
   </section>
 
   <section class="card">
-    <h2>Pedidos da Tyola</h2>
-    <div id="log"><p class="empty">Nada ainda. Fale pra Tyola: “open YouTube”, “search for cats”, “type hello world”…</p></div>
+    <h2>Tyola's requests</h2>
+    <div id="log"><p class="empty">Nothing yet. Tell Tyola: “open YouTube”, “search for cats”, “type hello world”…</p></div>
   </section>
 
   <section class="card">
-    <h2>O que a Tyola escreveu</h2>
-    <textarea id="notes" placeholder="Quando você pedir “escreve…” / “type…”, o texto aparece aqui."></textarea>
-    <div class="row" style="margin-top:10px"><button class="ghost" id="copy">Copiar</button><button class="ghost" id="clear">Limpar</button></div>
-    <p class="hint">Pra Tyola <b>abrir programas</b> (calculadora, bloco de notas, Minecraft…) e <b>digitar em qualquer janela</b>, rode o programinha <b>tyola_pc.py</b> neste computador. Navegador nenhum tem permissão pra isso.</p>
+    <h2>What Tyola typed</h2>
+    <textarea id="notes" placeholder="When you say “type…”, the text shows up here."></textarea>
+    <div class="row" style="margin-top:10px"><button class="ghost" id="copy">Copy</button><button class="ghost" id="clear">Clear</button></div>
+    <p class="hint">For Tyola to <b>open apps</b> (calculator, notepad, Minecraft…) and <b>type into any window</b>, run the small <b>tyola_pc.py</b> program on this computer. No browser is allowed to do that.</p>
   </section>
 </main>
 
@@ -109,44 +109,44 @@ function openUrl(url, label){
   if (!/^https?:\/\//i.test(url)) return;
   const w = window.open(url, '_blank'); if (w) try{ w.opener = null; }catch(e){}
   const ok = !!w;
-  addItem(`🌐 Abrir <b>${esc(label||url)}</b>${ok?'':' — <i>bloqueado pelo navegador</i>'}`, {label:'Abrir', run:()=>window.open(url,'_blank','noopener')});
-  send({type:'ack', info: ok ? `Abri ${label||'o site'}` : 'O navegador bloqueou, clique em Abrir no PC'});
-  flash(ok ? `Tyola abriu ${label||url}` : 'A Tyola quer abrir um site: clique em Abrir');
+  addItem(`🌐 Open <b>${esc(label||url)}</b>${ok?'':' — <i>blocked by the browser</i>'}`, {label:'Open', run:()=>window.open(url,'_blank','noopener')});
+  send({type:'ack', info: ok ? `Opened ${label||'the website'}` : 'The browser blocked it, click Open on the PC'});
+  flash(ok ? `Tyola opened ${label||url}` : 'Tyola wants to open a website: click Open');
 }
 
 function handle(m){
   if (m.from !== 'tyola') return;
   lastFromTyola = Date.now();
-  setStatus('on', 'conectado com a Tyola');
+  setStatus('on', 'connected to Tyola');
   if (m.type === 'ping'){ send({type:'hello'}); return; }
   if (m.type !== 'cmd') return;
   lookAround();
   if (m.cmd === 'open') openUrl(String(m.url||''), m.label);
-  else if (m.cmd === 'search'){ const q = String(m.q||'').slice(0,200); openUrl('https://www.google.com/search?q='+encodeURIComponent(q), 'pesquisa: '+q); }
+  else if (m.cmd === 'search'){ const q = String(m.q||'').slice(0,200); openUrl('https://www.google.com/search?q='+encodeURIComponent(q), 'search: '+q); }
   else if (m.cmd === 'type'){
     const t = String(m.text||'').slice(0,2000);
     const n = $('#notes'); n.value += (n.value ? '\n' : '') + t; n.scrollTop = n.scrollHeight;
-    addItem(`⌨️ Escrever: <b>${esc(t)}</b>`, {label:'Copiar', run:()=>navigator.clipboard && navigator.clipboard.writeText(t)});
-    send({type:'ack', info:'Escrevi no PC'}); flash('A Tyola escreveu: ' + t.slice(0,60));
+    addItem(`⌨️ Type: <b>${esc(t)}</b>`, {label:'Copy', run:()=>navigator.clipboard && navigator.clipboard.writeText(t)});
+    send({type:'ack', info:'Typed it on the PC'}); flash('Tyola typed: ' + t.slice(0,60));
   }
   else if (m.cmd === 'app'){
-    addItem(`🧩 Abrir programa: <b>${esc(m.label||m.name)}</b> — <i>precisa do tyola_pc.py</i>`);
-    flash('Pra abrir programas, rode o tyola_pc.py');
+    addItem(`🧩 Open app: <b>${esc(m.label||m.name)}</b> — <i>needs tyola_pc.py</i>`);
+    flash('To open apps, run tyola_pc.py');
   }
 }
 
 function connect(){
   const c = clean($('#code').value);
-  if (!c){ flash('Digite o código de 8 letras/números da Tyola'); return; }
+  if (!c){ flash('Type Tyola\'s 8-character code'); return; }
   $('#code').value = c;
   try{ localStorage.setItem('tyolapc.code', c); }catch(e){}
   topic = 'tyola-' + c.replace('-','').toLowerCase();
   if (es) es.close();
-  setStatus('', 'conectando…');
+  setStatus('', 'connecting…');
   es = new EventSource('https://ntfy.sh/' + topic + '/sse');
-  es.onopen = () => { setStatus('', 'esperando a Tyola…'); send({type:'hello'}); };
+  es.onopen = () => { setStatus('', 'waiting for Tyola…'); send({type:'hello'}); };
   es.onmessage = e => { let d, m; try{ d = JSON.parse(e.data); m = JSON.parse(d.message); }catch(_){ return; } if (d.event && d.event!=='message') return; handle(m); };
-  es.onerror = () => setStatus('off', 'sem conexão (tentando de novo…)');
+  es.onerror = () => setStatus('off', 'no connection (retrying…)');
   clearInterval(beat); beat = setInterval(()=>send({type:'hello'}), 30000);
 }
 
@@ -155,8 +155,8 @@ function lookAround(){ const ir=$('#iris'); let i=0; clearInterval(lookT); lookT
 
 $('#connect').onclick = connect;
 $('#code').addEventListener('keydown', e => { if (e.key==='Enter') connect(); });
-$('#testPop').onclick = () => { const w = window.open('https://www.google.com','_blank'); if (w) try{ w.opener = null; }catch(e){} flash(w ? 'Abriu! Agora libere os pop-ups quando o navegador pedir.' : 'Bloqueado: libere os pop-ups na barra de endereço'); };
-$('#copy').onclick = () => { navigator.clipboard && navigator.clipboard.writeText($('#notes').value); flash('Copiado!'); };
+$('#testPop').onclick = () => { const w = window.open('https://www.google.com','_blank'); if (w) try{ w.opener = null; }catch(e){} flash(w ? 'It opened! Now allow pop-ups if the browser asks.' : 'Blocked: allow pop-ups in the address bar'); };
+$('#copy').onclick = () => { navigator.clipboard && navigator.clipboard.writeText($('#notes').value); flash('Copied!'); };
 $('#clear').onclick = () => { $('#notes').value = ''; };
 
 const q = new URLSearchParams(location.search).get('code');

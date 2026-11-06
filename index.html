@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
@@ -20,7 +20,7 @@
 html,body{height:100%;overflow:hidden;background:var(--bg3);color:var(--ink);
   font-family:-apple-system,BlinkMacSystemFont,"SF Pro Rounded","Segoe UI",Roboto,sans-serif;
   -webkit-user-select:none;user-select:none;touch-action:manipulation;overscroll-behavior:none}
-#stage{position:fixed;inset:0;overflow:hidden;
+#stage{position:fixed;inset:0;overflow:hidden;overflow:clip;
   background:radial-gradient(120% 100% at 55% 35%,var(--bg1) 0%,var(--bg2) 48%,var(--bg3) 100%);}
 /* aura que muda de cor com a emoção */
 #aura{position:absolute;inset:-20%;pointer-events:none;transition:opacity .8s}
@@ -36,6 +36,31 @@ body[data-theme=rosa]{--bg1:#f53cb8;--bg2:#a21c8a;--bg3:#3f0730;--a1:#ff5cd0;--a
 body[data-theme=verde]{--bg1:#2fc98a;--bg2:#137a63;--bg3:#04261f;--a1:#4dffb0;--a2:#2fa8c9;--a3:#b0ff6a}
 body[data-theme=laranja]{--bg1:#f5893c;--bg2:#b8421c;--bg3:#3f1207;--a1:#ffb05c;--a2:#ff5c5c;--a3:#ffd84d}
 body[data-theme=noite]{--bg1:#3a2a6e;--bg2:#1a1240;--bg3:#07051a;--a1:#5a4a9e;--a2:#2a2a6e;--a3:#6a5ab0}
+#fxStars,#fxGrid,#fxBubbles{position:absolute;inset:0;pointer-events:none;overflow:hidden;display:none}
+body[data-bg=stars] #fxStars, body[data-bg=grid] #fxGrid, body[data-bg=bubbles] #fxBubbles{display:block}
+body[data-bg=plain] #aura, body[data-bg=stars] #aura, body[data-bg=grid] #aura{display:none}
+body[data-bg=bubbles] #aura{opacity:.55}
+#fxStars b{position:absolute;left:0;right:0;top:0;height:200%;will-change:transform;
+  background-image:radial-gradient(1.6px 1.6px at 20px 30px,#fff,transparent),radial-gradient(1.2px 1.2px at 140px 90px,#e8d8ff,transparent),
+  radial-gradient(2px 2px at 260px 160px,#fff,transparent),radial-gradient(1.3px 1.3px at 80px 210px,#ffd8f4,transparent),
+  radial-gradient(1.8px 1.8px at 320px 40px,#fff,transparent),radial-gradient(1.1px 1.1px at 200px 260px,#d8e8ff,transparent);
+  background-size:360px 300px;animation:starfall 40s linear infinite;opacity:.8}
+#fxStars b:nth-child(2){background-size:520px 420px;animation-duration:26s;opacity:.6;transform:scale(1.3)}
+#fxStars b:nth-child(3){background-size:700px 560px;animation-duration:14s;opacity:.9}
+@keyframes starfall{from{transform:translateY(-50%)}to{transform:translateY(0)}}
+#fxSun{position:absolute;left:50%;top:22%;width:46vmin;height:46vmin;margin-left:-23vmin;border-radius:50%;
+  background:linear-gradient(180deg,var(--a3),var(--a1) 55%,var(--a2));opacity:.55;
+  -webkit-mask:repeating-linear-gradient(180deg,#000 0 14px,transparent 14px 18px);mask:repeating-linear-gradient(180deg,#000 0 14px,transparent 14px 18px)}
+#fxFloor{position:absolute;left:-50%;right:-50%;bottom:-6%;height:52%;overflow:hidden;transform:perspective(320px) rotateX(62deg);transform-origin:50% 0}
+#fxFloorIn{position:absolute;left:0;right:0;top:-80px;bottom:0;will-change:transform;
+  background-image:linear-gradient(var(--a1) 2px,transparent 2px),linear-gradient(90deg,var(--a1) 2px,transparent 2px);
+  background-size:80px 80px;opacity:.7;animation:gridrun 1.2s linear infinite}
+@keyframes gridrun{from{transform:translateY(0)}to{transform:translateY(80px)}}
+#fxBubbles span{position:absolute;bottom:-20vmin;border-radius:50%;border:2px solid rgba(255,255,255,.35);
+  background:radial-gradient(circle at 30% 30%,rgba(255,255,255,.35),rgba(255,255,255,.04) 60%);animation:rise linear infinite;will-change:transform}
+@keyframes rise{from{transform:translateY(0)}to{transform:translateY(-140vh)}}
+body[data-mood=angry]{--a1:#ff4d6d;--a2:#b01cff;--a3:#ff8a4d}
+body[data-mood=confused]{--a1:#4dd0ff;--a2:#8a5cff;--a3:#ffd84d}
 body[data-mood=happy]{--a1:#d06bff;--a2:#7a4dff;--a3:#ff7bd0}
 body[data-mood=sad]{--a1:#4b5cff;--a2:#2f3fbf;--a3:#5aa0ff}
 body[data-mood=love]{--a1:#ff5fc8;--a2:#b44dff;--a3:#ff8fb0}
@@ -58,7 +83,9 @@ svg#face{position:absolute;inset:0;width:100%;height:100%;display:block}
 #bar button:active{background:rgba(255,255,255,.12)}
 #bar svg{width:22px;height:22px}
 #bar .off{opacity:.45}
-#plusBadge{font-weight:800;font-size:17px;letter-spacing:-.5px}
+#plusBadge{font-weight:900;font-size:20px;letter-spacing:-.5px;transition:color .3s,text-shadow .3s}
+#bPlus.ai{background:linear-gradient(135deg,#ff7bd0,#a77bff)!important;box-shadow:0 0 16px rgba(255,123,208,.7)}
+#bPlus.ai #plusBadge{color:#fff;text-shadow:0 0 8px #fff}
 
 #caption{position:absolute;left:50%;bottom:calc(6px + env(safe-area-inset-bottom));transform:translateX(-50%);
   max-width:64%;text-align:center;font-size:13.5px;line-height:1.25;padding:5px 12px;border-radius:12px;
@@ -98,6 +125,7 @@ body.typing #caption{bottom:auto;top:calc(124px + env(safe-area-inset-top))}
 #panel .sub{font-size:12px;color:var(--soft);margin-bottom:14px}
 #panel h3{font-size:13px;text-transform:uppercase;letter-spacing:1px;color:var(--soft);margin:18px 0 8px}
 #panel label{display:block;font-size:13px;margin:10px 0 4px;color:#ddd6ff}
+#panel textarea{width:100%;font-size:16px;padding:9px 10px;border-radius:9px;border:1px solid rgba(199,188,255,.25);background:rgba(255,255,255,.07);color:var(--ink);font-family:inherit;resize:vertical;-webkit-user-select:text;user-select:text}
 #panel input,#panel select{width:100%;font-size:16px;padding:9px 10px;border-radius:9px;
   border:1px solid rgba(199,188,255,.25);background:rgba(255,255,255,.07);color:var(--ink);outline:none;
   -webkit-user-select:text;user-select:text}
@@ -178,6 +206,9 @@ body.iphone8 #stage{border-radius:0;box-shadow:0 0 0 1px rgba(214,190,255,.18)}
 <div id="bezel"></div>
 <div id="stage">
   <div id="aura"><i></i><i></i><i></i></div>
+  <div id="fxStars"><b></b><b></b><b></b></div>
+  <div id="fxGrid"><div id="fxSun"></div><div id="fxFloor"><div id="fxFloorIn"></div></div></div>
+  <div id="fxBubbles"></div>
   <div id="timer"></div>
   <svg id="face" viewBox="0 0 667 375" preserveAspectRatio="none">
     <defs>
@@ -248,12 +279,53 @@ body.iphone8 #stage{border-radius:0;box-shadow:0 0 0 1px rgba(214,190,255,.18)}
       <ellipse cx="0" cy="0" rx="135" ry="150" fill="url(#halo)"/>
       <g id="eyeScale">
         <g id="eyeOpen" clip-path="url(#lidClip)">
-          <ellipse cx="0" cy="0" rx="80" ry="94" fill="#f8f4ff"/>
-          <ellipse cx="0" cy="0" rx="80" ry="94" fill="none" stroke="#d7c2ff" stroke-width="5"/>
+          <g id="scleraRound">
+            <ellipse cx="0" cy="0" rx="80" ry="94" fill="#f8f4ff"/>
+            <ellipse cx="0" cy="0" rx="80" ry="94" fill="none" stroke="#d7c2ff" stroke-width="5"/>
+          </g>
+          <g id="scleraBox" style="display:none">
+            <rect x="-82" y="-86" width="164" height="172" rx="34" fill="#f8f4ff"/>
+            <rect x="-82" y="-86" width="164" height="172" rx="34" fill="none" stroke="#d7c2ff" stroke-width="5"/>
+          </g>
           <g id="iris">
-            <ellipse cx="0" cy="0" rx="48" ry="60" fill="url(#irisGrad)"/>
-            <ellipse cx="0" cy="0" rx="44" ry="56" fill="none" stroke="#c9a8ff" stroke-width="3" opacity=".55"/>
-            <ellipse cx="0" cy="4" rx="27" ry="34" fill="#0c0230" opacity=".78"/>
+            <ellipse id="irisBase" cx="0" cy="0" rx="48" ry="60" fill="url(#irisGrad)"/>
+            <g class="es" data-es="classic">
+              <ellipse cx="0" cy="0" rx="44" ry="56" fill="none" stroke="#c9a8ff" stroke-width="3" opacity=".55"/>
+              <ellipse class="pupil" cx="0" cy="4" rx="27" ry="34" fill="#0c0230" opacity=".78"/>
+            </g>
+            <g class="es" data-es="cat" style="display:none">
+              <ellipse cx="0" cy="0" rx="44" ry="56" fill="none" stroke="#ffffff" stroke-width="2" opacity=".35"/>
+              <path d="M-20 -30 Q0 -40 20 -30 M-24 30 Q0 40 24 30" stroke="#ffffff" stroke-width="2" opacity=".25" fill="none"/>
+              <ellipse class="pupil" cx="0" cy="0" rx="8" ry="50" fill="#0c0230" opacity=".9"/>
+            </g>
+            <g class="es" data-es="robot" style="display:none">
+              <rect x="-46" y="-56" width="92" height="112" rx="16" fill="url(#irisGrad)"/>
+              <path d="M-40 -30 H40 M-40 -10 H40 M-40 10 H40 M-40 30 H40" stroke="#ffffff" stroke-width="2" opacity=".18"/>
+              <rect class="pupil" x="-20" y="-22" width="40" height="44" rx="8" fill="#0c0230" opacity=".85"/>
+            </g>
+            <g class="es" data-es="spiral" style="display:none">
+              <path id="spiral" fill="none" stroke="#0c0230" stroke-width="6" stroke-linecap="round" opacity=".8"/>
+              <circle class="pupil" r="8" fill="#0c0230"/>
+            </g>
+            <g class="es" data-es="pixel" style="display:none">
+              <path fill="url(#irisGrad)" d="M-20 -60 H20 V-50 H32 V-38 H44 V-20 H50 V20 H44 V38 H32 V50 H20 V60 H-20 V50 H-32 V38 H-44 V20 H-50 V-20 H-44 V-38 H-32 V-50 H-20 Z"/>
+              <rect class="pupil" x="-18" y="-18" width="36" height="36" fill="#0c0230" opacity=".9"/>
+              <rect x="-34" y="-46" width="12" height="12" fill="#ffffff" opacity=".8"/>
+            </g>
+            <g class="es" data-es="ring" style="display:none">
+              <circle r="44" fill="#0c0230" opacity=".55"/>
+              <g id="rings" fill="none" stroke="#ffffff">
+                <circle r="38" stroke-width="2" opacity=".55" stroke-dasharray="14 8"/>
+                <circle r="28" stroke-width="3" opacity=".75" stroke-dasharray="40 10"/>
+                <circle r="18" stroke-width="2" opacity=".9"/>
+              </g>
+              <circle class="pupil" r="9" fill="#ffffff"/>
+            </g>
+            <g class="es" data-es="galaxy" style="display:none">
+              <ellipse cx="0" cy="0" rx="48" ry="60" fill="#0c0230" opacity=".7"/>
+              <g id="galaxy" fill="#ffffff"></g>
+              <circle class="pupil" r="11" fill="#ffffff" opacity=".9"/>
+            </g>
             <path id="heart" fill="#ff7bd0" opacity="0" d="M0 18 C-30 -2 -26 -26 -10 -26 C-3 -26 0 -20 0 -16 C0 -20 3 -26 10 -26 C26 -26 30 -2 0 18 Z"/>
             <circle id="dotGlint" cx="-14" cy="-22" r="10" fill="#fff" opacity="0"/>
             <path id="star" fill="#fff" transform="translate(-14 -22)"
@@ -262,6 +334,8 @@ body.iphone8 #stage{border-radius:0;box-shadow:0 0 0 1px rgba(214,190,255,.18)}
           </g>
         </g>
       </g>
+      <path id="brow" d="M-62 -128 Q0 -146 62 -128" fill="none" stroke="#f6f0ff" stroke-width="11" stroke-linecap="round" opacity="0"/>
+      <text id="qmark" x="96" y="-70" font-size="64" font-weight="900" fill="#ffd84d" font-family="-apple-system,system-ui,sans-serif" opacity="0">?</text>
       <path id="chevron" d="M30 -46 L-34 0 L30 46" fill="none" stroke="#f3f0ff" stroke-width="12"
         stroke-linecap="round" stroke-linejoin="round" opacity="0"/>
       <path id="sleepLid" d="M-58 4 Q0 34 58 4" fill="none" stroke="#f3f0ff" stroke-width="10" stroke-linecap="round" opacity="0"/>
@@ -284,172 +358,212 @@ body.iphone8 #stage{border-radius:0;box-shadow:0 0 0 1px rgba(214,190,255,.18)}
     <button id="bMenu" aria-label="Menu">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
     </button>
-    <button id="bMic" aria-label="Microfone">
+    <button id="bMic" aria-label="Microphone">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
         <rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/>
         <path class="slash" d="M4 4l16 16" style="display:none"/>
       </svg>
     </button>
-    <button id="bSpk" aria-label="Som">
+    <button id="bSpk" aria-label="Sound">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/>
         <path class="waves" d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/>
         <path class="slash" d="M16 9l5 6M21 9l-5 6" style="display:none"/>
       </svg>
     </button>
-    <button id="bPlus" aria-label="Tyola+ por texto"><span id="plusBadge">+</span></button>
+    <button id="bKey" aria-label="Keyboard">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2.5" y="6" width="19" height="12" rx="2.5"/><path d="M6 10h.01M9.5 10h.01M13 10h.01M16.5 10h.01M7 14h10"/></svg>
+    </button>
+    <button id="bPlus" aria-label="Tyola+ on/off"><span id="plusBadge">+</span></button>
   </div>
   <div id="plusTag">TYOLA+</div>
   <div id="linkTag">🖥️ PC</div>
   <div id="caption"></div>
 
   <form id="typebox" autocomplete="off">
-    <input id="typeInput" type="text" placeholder="Fala com a Tyola+…" enterkeyhint="send">
-    <button type="submit">Enviar</button>
+    <input id="typeInput" type="text" placeholder="Talk to Tyola…" enterkeyhint="send">
+    <button type="submit">Send</button>
   </form>
 
   <div id="shade"></div>
   <aside id="panel">
     <h2>Tyola</h2>
-    <div class="sub">Configurações · pronuncia-se “Tai-ou-la” · <b>v1.0</b></div>
+    <div class="sub">Settings · say it “Tie-oh-la” · <b>v1.1</b></div>
 
-    <h3>Apresentação</h3>
-    <button class="btn present" id="bPresent" type="button">▶ Modo apresentação</button>
-    <div class="hint">A Tyola se apresenta sozinha e mostra tudo que sabe fazer (no idioma escolhido). Toque na tela pra parar.</div>
-    <button class="btn" id="bHelp" type="button" style="width:100%;margin-top:6px">❓ Como falar com a Tyola (microfone)</button>
-    <h3>Conectar ao PC (Tyola Link)</h3>
-    <button class="btn present" id="bLink" type="button" style="background:linear-gradient(90deg,#4de0b0,#4d7bff)">🖥️ Ligar conexão com o PC</button>
-    <div id="linkBox" style="display:none">
-      <div style="margin:10px 0 4px">Código: <b id="linkCode" style="font-size:24px;letter-spacing:3px"></b> <span id="linkStatus" style="font-size:13px"></span></div>
-      <div class="hint">No computador (ou outro aparelho), abra <b id="linkUrl"></b> e digite esse código. Aí é só pedir: “open YouTube”, “search for cats”, “type hello world”, “open calculator” (em português também: “abre o YouTube”, “pesquisa gatos”, “escreve oi”).</div>
-      <div class="row" style="margin-top:8px">
-        <button id="bLinkTest" type="button">Testar: abrir YouTube no PC</button>
-        <button id="bLinkNew" type="button">Novo código</button>
-      </div>
-    </div>
-    <h3>Passeio (mBot)</h3>
-    <button class="btn present" id="bWalk" type="button" style="background:linear-gradient(90deg,#4dc3ff,#7a4dff)">🚗 Passeio</button>
-    <label for="sWalk">Duração do passeio: <b id="walkVal"></b></label>
-    <input id="sWalk" type="range" min="5" max="60" step="5">
-    <div class="hint">Ela conta 3, 2, 1, “vai!”: ligue o mBot (controle remoto ou programa do mBlock) no “vai!”. Também funciona falando “let's go for a walk” / “vamos passear”. Toque na tela pra parar.</div>
-    <h3>Testar</h3>
-    <div class="row">
-      <button data-test="happy">Feliz</button>
-      <button data-test="sad">Triste</button>
-      <button data-test="blink">Piscar</button>
-      <button data-test="talk">Falar</button>
-      <button data-test="create">Criando algo</button>
-      <button data-test="surprised">Surpresa</button>
-      <button data-test="love">Amor</button>
-      <button data-test="dance">Dançar</button>
-      <button data-test="sleep">Dormir</button>
-      <button data-test="timer">Timer 10s</button>
-      <button data-test="listen">Ouvir</button>
-    </div>
+    <h3>Show time</h3>
+    <button class="btn present" id="bPresent" type="button">▶ Presentation mode</button>
+    <div class="hint">Tyola introduces herself and shows off everything she can do. Tap the screen to stop.</div>
+    <button class="btn" id="bHelp" type="button" style="width:100%;margin-top:6px">❓ How to talk to Tyola (microphone)</button>
 
-    <h3>Tyola+ (IA)</h3>
-    <label for="sProvider">Provedor</label>
+    <h3>Tyola+ (AI)</h3>
+    <div class="hint" style="margin-top:0">Tap the <b>+</b> on the top bar to turn Tyola+ on or off. When it's off, Tyola works like a smart speaker: ready-made answers, timer, time, dance, walk and PC commands.</div>
+    <label for="sProvider">AI provider</label>
     <select id="sProvider">
-      <option value="app">Claude do app (sem chave, só no artefato)</option>
-      <option value="anthropic">Claude via chave de API (pro GitHub)</option>
-      <option value="openai">Compatível com OpenAI (GitHub Models etc.)</option>
+      <option value="app">Claude in the app (no key, only inside Claude)</option>
+      <option value="anthropic">Claude with an API key (for the website)</option>
+      <option value="openai">OpenAI-compatible (GitHub Models etc.)</option>
     </select>
     <div id="baseWrap">
-      <label for="sBase">Endereço da API</label>
+      <label for="sBase">API address</label>
       <input id="sBase" type="url" placeholder="https://models.github.ai/inference/chat/completions">
     </div>
-    <div id="appNote" class="hint">Usa o Claude da sua própria conta. Na primeira pergunta o app pede pra você permitir. Fora do claude.ai (no GitHub) isso não existe: aí troque pra “chave de API”.</div>
+    <div id="appNote" class="hint">Uses Claude from your own account. The first question asks you to allow it. This only exists inside the Claude app; on the website, switch to “API key”.</div>
     <div id="keyWrap">
-    <label for="sKey">Chave / token</label>
-    <input id="sKey" type="password" placeholder="cole aqui (fica salva só neste aparelho)">
-    <div class="hint">A chave nunca vai pro código nem pro GitHub. Ela fica guardada só neste aparelho. Sem IA, a Tyola usa respostas prontas.</div>
+      <label for="sKey">API key / token</label>
+      <input id="sKey" type="password" placeholder="paste here (saved only on this device)">
+      <div class="hint">The key never goes into the code or GitHub. It stays only on this device.</div>
     </div>
-    <label for="sModel">Modelo</label>
+    <label for="sModel">Model</label>
     <select id="sModel"></select>
     <div id="customWrap" style="display:none">
-      <label for="sCustom">Nome do modelo</label>
-      <input id="sCustom" type="text" placeholder="ex.: openai/gpt-4.1-mini">
+      <label for="sCustom">Model name</label>
+      <input id="sCustom" type="text" placeholder="e.g. openai/gpt-4.1-mini">
     </div>
-    <button class="btn primary" id="bTestKey" type="button">Testar conexão</button>
+    <button class="btn primary" id="bTestKey" type="button">Test connection</button>
     <div id="keyStatus"></div>
 
-    <h3>Personalizar</h3>
-    <label for="sPersona">Personalidade (o “humor” dela)</label>
-    <select id="sPersona">
-      <option value="alegre">😊 Alegre — sorri à toa</option>
-      <option value="calma">😌 Calma — devagar e tranquila</option>
-      <option value="sonolenta">😴 Sonolenta — olho meio fechado, dorme rápido</option>
-      <option value="agitada">⚡ Agitada — olha pra todo lado, quase não dorme</option>
-      <option value="rabugenta">😤 Rabugenta — cara emburrada (mas é fofa)</option>
+    <h3>Her look</h3>
+    <label for="sEyeStyle">Eye style</label>
+    <select id="sEyeStyle">
+      <option value="classic">👁️ Classic</option>
+      <option value="cat">🐱 Cat (slit pupil)</option>
+      <option value="robot">🤖 Robot (square screen eye)</option>
+      <option value="spiral">🌀 Hypno spiral</option>
+      <option value="pixel">👾 Pixel (8-bit)</option>
+      <option value="ring">💿 Cyber rings</option>
+      <option value="galaxy">🌌 Galaxy</option>
     </select>
-    <div class="hint">Muda o rosto quando ela está parada e o jeito das respostas da IA.</div>
-    <label for="sTheme">Cor do tema</label>
-    <select id="sTheme">
-      <option value="roxo">Roxo (original)</option><option value="azul">Azul</option><option value="rosa">Rosa</option>
-      <option value="verde">Verde</option><option value="laranja">Laranja</option><option value="noite">Noite (escuro)</option>
-    </select>
-    <label for="sEye">Cor do olho</label>
+    <label for="sEye">Eye color</label>
     <select id="sEye">
-      <option value="roxo">Roxo</option><option value="azul">Azul</option><option value="verde">Verde</option>
-      <option value="ambar">Âmbar</option><option value="rosa">Rosa</option><option value="preto">Preto</option>
+      <option value="roxo">Purple</option><option value="azul">Blue</option><option value="verde">Green</option>
+      <option value="ambar">Amber</option><option value="rosa">Pink</option><option value="preto">Black</option>
     </select>
-    <label for="sGlint">Brilho dentro do olho</label>
+    <label for="sGlint">Eye sparkle</label>
     <select id="sGlint">
-      <option value="estrela">⭐ Estrela</option><option value="bolinha">● Bolinha</option><option value="nenhum">Nenhum</option>
+      <option value="estrela">⭐ Star</option><option value="bolinha">● Dot</option><option value="nenhum">None</option>
+    </select>
+    <label for="sBg">Background</label>
+    <select id="sBg">
+      <option value="aurora">✨ Aurora (moving glow)</option>
+      <option value="stars">🌠 Space (flying stars)</option>
+      <option value="grid">🕹️ Retro grid (synthwave)</option>
+      <option value="bubbles">🫧 Bubbles</option>
+      <option value="plain">⬛ Plain (fastest)</option>
+    </select>
+    <label for="sTheme">Color theme</label>
+    <select id="sTheme">
+      <option value="roxo">Purple (original)</option><option value="azul">Blue</option><option value="rosa">Pink</option>
+      <option value="verde">Green</option><option value="laranja">Orange</option><option value="noite">Night</option>
     </select>
 
-    <h3>Voz</h3>
-    <label for="sLang">Idioma da Tyola</label>
+    <h3>Personality</h3>
+    <select id="sPersona">
+      <option value="alegre">😊 Cheerful: smiles all the time</option>
+      <option value="calma">😌 Calm: slow and peaceful</option>
+      <option value="sonolenta">😴 Sleepy: half-closed eye, naps fast</option>
+      <option value="agitada">⚡ Hyper: looks everywhere, never sleeps</option>
+      <option value="rabugenta">😤 Grumpy: frowny face (but cute)</option>
+      <option value="custom">✍️ Write your own…</option>
+    </select>
+    <div id="customPersonaWrap" style="display:none">
+      <label for="sCustomPersona">Describe her personality</label>
+      <textarea id="sCustomPersona" rows="3" placeholder="e.g. a pirate robot who loves pizza and says “arrr”"></textarea>
+      <label for="sCustomFace">Resting face</label>
+      <select id="sCustomFace">
+        <option value="alegre">Smiling</option><option value="calma">Relaxed</option><option value="sonolenta">Sleepy</option>
+        <option value="agitada">Wide awake</option><option value="rabugenta">Grumpy</option>
+      </select>
+    </div>
+    <div class="hint">Changes her resting face and how Tyola+ talks.</div>
+
+    <h3>Voice</h3>
+    <label for="sLang">Tyola's language</label>
     <select id="sLang">
-      <option value="en-US">English (pra aula de inglês)</option>
-      <option value="pt-BR">Português</option>
+      <option value="en-US">English</option>
+      <option value="pt-BR">Portuguese</option>
     </select>
-    <label for="sInput">Como falar com a Tyola</label>
-    <select id="sInput">
-      <option value="auto">Automático (teclado no app do Claude, microfone no site)</option>
-      <option value="keyboard">Sempre pelo teclado (🎤 do Ditado)</option>
-      <option value="mic">Sempre pelo microfone direto</option>
-    </select>
-    <div class="hint">O iPhone/iPad não deixa nenhum site ligar o 🎤 do teclado sozinho nem esconder o teclado: o 🎤 só liga com o seu dedo. No site aberto no Safari, o microfone direto funciona sem teclado.</div>
-    <label for="sRate">Velocidade da fala</label>
+    <label for="sVoice">Voice</label>
+    <select id="sVoice"></select>
+    <div class="hint">For a more human voice: iPhone Settings › Accessibility › Spoken Content › Voices › English › download a voice marked <b>Enhanced</b> or <b>Premium</b> (Ava, Zoe, Samantha…). Then pick it here.</div>
+    <label for="sRate">Speed</label>
     <input id="sRate" type="range" min="0.7" max="1.4" step="0.05">
-    <label for="sPitch">Tom da voz</label>
+    <label for="sPitch">Pitch</label>
     <input id="sPitch" type="range" min="0.8" max="1.8" step="0.05">
+    <button class="btn" id="bVoiceTest" type="button" style="width:100%;margin-top:8px">🔊 Test voice</button>
+    <label for="sInput">How to talk to her</label>
+    <select id="sInput">
+      <option value="auto">Automatic (keyboard inside Claude, mic on the website)</option>
+      <option value="keyboard">Always keyboard (🎤 dictation)</option>
+      <option value="mic">Always direct microphone</option>
+    </select>
 
-    <h3>Tela</h3>
-    <label for="sScreen">Formato da tela</label>
+    <h3>Connect to a PC (Tyola Link)</h3>
+    <button class="btn present" id="bLink" type="button" style="background:linear-gradient(90deg,#4de0b0,#4d7bff)">🖥️ Turn on PC link</button>
+    <div id="linkBox" style="display:none">
+      <div style="margin:10px 0 4px">Code: <b id="linkCode" style="font-size:24px;letter-spacing:3px"></b> <span id="linkStatus" style="font-size:13px"></span></div>
+      <div class="hint">On the computer (or any device), open <b id="linkUrl"></b> and type this code. Then just ask: “open YouTube”, “search for cats”, “type hello world”, “open calculator”.</div>
+      <div class="row" style="margin-top:8px">
+        <button id="bLinkTest" type="button">Test: open YouTube on the PC</button>
+        <button id="bLinkNew" type="button">New code</button>
+      </div>
+    </div>
+
+    <h3>Walk (mBot)</h3>
+    <button class="btn present" id="bWalk" type="button" style="background:linear-gradient(90deg,#4dc3ff,#7a4dff)">🚗 Go for a walk</button>
+    <label for="sWalk">Walk length: <b id="walkVal"></b></label>
+    <input id="sWalk" type="range" min="5" max="60" step="5">
+    <div class="hint">She counts 3, 2, 1, “Go!”: start the mBot on “Go!”. Saying “let's go for a walk” works too. Tap the screen to stop.</div>
+
+    <h3>Try her faces</h3>
+    <div class="row">
+      <button data-test="happy">Happy</button>
+      <button data-test="sad">Sad</button>
+      <button data-test="angry">Angry</button>
+      <button data-test="confused">Confused</button>
+      <button data-test="surprised">Surprised</button>
+      <button data-test="love">Love</button>
+      <button data-test="wink">Wink</button>
+      <button data-test="blink">Blink</button>
+      <button data-test="talk">Talk</button>
+      <button data-test="create">Working</button>
+      <button data-test="dance">Dance</button>
+      <button data-test="sleep">Sleep</button>
+      <button data-test="timer">Timer 10s</button>
+      <button data-test="listen">Listen</button>
+    </div>
+
+    <h3>Screen</h3>
+    <label for="sScreen">Screen shape</label>
     <select id="sScreen">
-      <option value="full">Tela inteira</option>
-      <option value="iphone8">Formato do iPhone 8 (16:9)</option>
+      <option value="full">Full screen</option>
+      <option value="iphone8">iPhone 8 shape (16:9)</option>
     </select>
     <div class="row" style="margin-top:10px">
-      <button id="bHideBar" type="button">Esconder barra</button>
-      <button id="bClear" type="button">Limpar conversa</button>
-      <button id="bSfx" type="button">Sons de robô</button>
+      <button id="bHideBar" type="button">Hide top bar</button>
+      <button id="bClear" type="button">Clear chat</button>
+      <button id="bSfx" type="button">Robot sounds</button>
     </div>
-    <div class="hint">Comandos que ela entende sem IA: “set a timer for 2 minutes” / “timer de 30 segundos”, “what time is it?” / “que horas são?”, “dance!” / “dança!”. Parada por 90 s ela dorme; toque pra acordar.<br>Barra escondida: toque com 2 dedos na tela pra ela voltar.<br>Dica: no iPhone, Ajustes › Tela e Brilho › Bloqueio Automático › Nunca, pra tela não apagar.</div>
+    <div class="hint">Works without AI: “set a timer for 2 minutes”, “what time is it?”, “dance!”, “let's go for a walk”. After a while without anyone around she falls asleep; tap to wake her up.<br>Hidden top bar: tap with two fingers to bring it back.<br>Tip: iPhone Settings › Display & Brightness › Auto-Lock › Never.</div>
   </aside>
 
   <div id="help"><div class="card">
-    <h2>Como falar com a Tyola</h2>
-    <div class="why" id="helpWhy">Dentro do artefato o iPad às vezes não libera o microfone direto pra Tyola. Mas dá pra falar com ela pelo microfone do teclado, que usa o Ditado:</div>
+    <h2>How to talk to Tyola</h2>
+    <div class="why" id="helpWhy">Inside the Claude app, the iPad/iPhone doesn't let Tyola use the microphone directly. But you can talk to her with the keyboard microphone (dictation):</div>
     <ol>
-      <li><b class="n">1</b><span>Toque na tela da Tyola. A caixa de texto abre e o <b>teclado</b> aparece.</span></li>
-      <li><b class="n">2</b><span>Toque no <b>🎤 do teclado</b>, perto da barra de espaço (ou no canto de baixo).</span></li>
-      <li><b class="n">3</b><span><b>Fale</b> normalmente, em inglês ou português. O texto aparece sozinho.</span></li>
-      <li><b class="n">4</b><span>Toque em <b>Enviar</b>. A Tyola responde falando em voz alta.</span></li>
+      <li><b class="n">1</b><span>Tap Tyola's screen. The text box opens and the <b>keyboard</b> shows up.</span></li>
+      <li><b class="n">2</b><span>Tap the <b>🎤 on the keyboard</b>, next to the space bar.</span></li>
+      <li><b class="n">3</b><span><b>Talk</b> normally. The words appear by themselves.</span></li>
+      <li><b class="n">4</b><span>Tap <b>Send</b>. Tyola answers out loud.</span></li>
     </ol>
-    <div class="kb"><span>123</span><span>🌐</span><span class="mic">🎤</span><span class="space">espaço</span><span>enviar</span></div>
-    <details><summary>Não tem o 🎤 no teclado?</summary>
-      <p>Abra <b>Ajustes › Geral › Teclado</b> e ligue <b>Ativar Ditado</b>. Se o teclado estiver flutuante ou dividido, junte ele de novo (pinça com dois dedos) que o 🎤 aparece.</p>
+    <div class="kb"><span>123</span><span>🌐</span><span class="mic">🎤</span><span class="space">space</span><span>send</span></div>
+    <details><summary>No 🎤 on the keyboard?</summary>
+      <p>Go to <b>Settings › General › Keyboard</b> and turn on <b>Enable Dictation</b>. If the keyboard is floating or split, pinch it back to normal and the 🎤 shows up.</p>
     </details>
-    <details><summary>Quero o microfone direto, sem o teclado</summary>
-      <p>Dentro do <b>app do Claude</b> isso não funciona: o app não deixa páginas usarem o reconhecimento de voz. Lá o 🎤 do teclado é o jeito. Fora do app, no Safari, tente:</p>
-      <p><b>1.</b> No Safari, toque em <b>aA</b> (ou no ícone ao lado do endereço) › <b>Ajustes do Site</b> › <b>Microfone</b> › <b>Permitir</b>.</p>
-      <p><b>2.</b> Em <b>Ajustes › Siri</b>, deixe a Siri ligada: o reconhecimento de voz de sites depende dela.</p>
-      <p><b>3.</b> Recarregue a página e toque na tela. Se ainda falhar, é o artefato bloqueando: aí o teclado é o jeito.</p>
+    <details><summary>I want the direct microphone, no keyboard</summary>
+      <p>That doesn't work inside the <b>Claude app</b>. Open Tyola's <b>website in Safari</b> instead. There, tapping the screen uses the microphone directly.</p>
+      <p>If Safari blocks it: tap <b>aA</b> next to the address › <b>Website Settings</b> › <b>Microphone</b> › <b>Allow</b>, and keep <b>Siri</b> turned on in Settings.</p>
     </details>
-    <button class="go" id="helpOk" type="button">Entendi, vamos lá!</button>
+    <button class="go" id="helpOk" type="button">Got it, let's go!</button>
   </div></div>
   <div id="boot"><div>
   <svg id="bootLogo" viewBox="0 0 520 190" aria-label="Tyola">
@@ -479,8 +593,8 @@ body.iphone8 #stage{border-radius:0;box-shadow:0 0 0 1px rgba(214,190,255,.18)}
     </g>
     <path d="M146 154 Q201 180 256 154" fill="none" stroke="#f6f0ff" stroke-width="9" stroke-linecap="round"/>
   </svg>
-  <p>toque pra ligar</p></div></div>
-  <div id="rotate">Deita o iPhone ↻<br><small>A Tyola funciona na horizontal</small></div>
+  <p>tap to start</p></div></div>
+  <div id="rotate">Turn your phone sideways ↻<br><small>Tyola works in landscape</small></div>
 </div>
 
 <script>
@@ -492,34 +606,37 @@ const $ = s => document.querySelector(s);
 const DEFAULTS = {
   provider:'app', key:'', model:'quick', custom:'',
   base:'https://models.github.ai/inference/chat/completions',
-  lang:'en-US', rate:1.05, pitch:1.3, mic:true, voice:true, bar:true, sfx:true, walkSecs:15, input:'auto', screen:'full', theme:'roxo', eye:'roxo', glint:'estrela', persona:'alegre', linkOn:false, linkCode:''
+  lang:'en-US', rate:1.05, pitch:1.3, mic:true, voice:true, bar:true, sfx:true, walkSecs:15, input:'auto', screen:'full', theme:'roxo', eye:'roxo', glint:'estrela', persona:'alegre', linkOn:false, linkCode:'', eyeStyle:'classic', bg:'aurora', aiOn:false, customPersona:'', customFace:'alegre', voiceName:'', v:0
 };
 const MODELS = {
   app:[
-    ['quick','Rápido (recomendado pra conversa)'],
-    ['default','Equilibrado'],
-    ['complex','Mais esperto (demora mais)']
+    ['quick','Fast (best for chatting)'],
+    ['default','Balanced'],
+    ['complex','Smartest (slower)']
   ],
   anthropic:[
-    ['claude-haiku-5-5','Claude Haiku 5.5 (rápido e barato)'],
+    ['claude-haiku-5-5','Claude Haiku 5.5 (fast and cheap)'],
     ['claude-sonnet-5-5','Claude Sonnet 5.5'],
-    ['claude-opus-5-5','Claude Opus 5.5 (mais esperto, mais caro)'],
-    ['__custom','Outro…']
+    ['claude-opus-5-5','Claude Opus 5.5 (smartest, pricier)'],
+    ['__custom','Other…']
   ],
   openai:[
     ['openai/gpt-4.1-mini','openai/gpt-4.1-mini'],
     ['openai/gpt-4o-mini','openai/gpt-4o-mini'],
-    ['__custom','Outro…']
+    ['__custom','Other…']
   ]
 };
 let S = {...DEFAULTS};
 try { S = {...DEFAULTS, ...JSON.parse(localStorage.getItem('tyola.settings')||'{}')}; } catch(e){}
+// v1.1: voz menos robótica por padrão
+if (S.v < 11){ if (S.pitch===1.3) S.pitch = 1.1; if (S.rate===1.05) S.rate = 1.0; S.v = 11; }
 function save(){ try{ localStorage.setItem('tyola.settings', JSON.stringify(S)); }catch(e){} }
 const modelName = () => S.model==='__custom' ? S.custom.trim() : S.model;
 // Claude do próprio app (quando a Tyola roda como artefato no claude.ai): sem chave nenhuma
 let sampleFn = null;
 try{ if (window.claude && claude.use) claude.use('sample').then(f => { sampleFn = f; applyUI(); }).catch(()=>{}); }catch(e){}
-const hasAI = () => S.provider==='app' ? !!sampleFn : (!!S.key.trim() && !!modelName());
+const aiReady = () => S.provider==='app' ? !!sampleFn : (!!S.key.trim() && !!modelName());
+const hasAI = () => S.aiOn && aiReady();
 // se o reconhecimento de voz for bloqueado uma vez, vai direto pro teclado (o 🎤 do teclado usa o Ditado)
 let srBlocked = false;
 
@@ -592,7 +709,7 @@ const st = {
   blinkAt:0, blinkStart:-1, nextBlink:2500,
   busy:false, listening:false
 };
-const cur = { walk:0, love:0, surp:0, topL:100, topR:100, bot:110, curve:0, sleep:1, sad:0, wrench:1, mic:0, mouse:0, smile:0, mw:22, talk:0, amp:0, ampT:0, eyeS:1 };
+const cur = { brow:0, browY:0, browTilt:0, browCurve:0, pupil:1, conf:0, pop:0, walk:0, love:0, surp:0, topL:100, topR:100, bot:110, curve:0, sleep:1, sad:0, wrench:1, mic:0, mouse:0, smile:0, mw:22, talk:0, amp:0, ampT:0, eyeS:1 };
 const MOODS = {
   sleep: {topL:100, topR:100, bot:110, curve:0,  sleep:1, sad:0, smile:0,   mw:22},
   normal:{topL:-110,topR:-110,bot:110, curve:0,  sleep:0, sad:0, smile:0,   mw:22},  // ajustado pela personalidade
@@ -601,7 +718,9 @@ const MOODS = {
   think: {topL:-62, topR:-62, bot:110, curve:0,  sleep:0, sad:0, smile:-.15,mw:14},
   listen:{topL:-110,topR:-110,bot:110, curve:0,  sleep:0, sad:0, smile:.25, mw:18},
   surprised:{topL:-110,topR:-110,bot:110,curve:0, sleep:0, sad:0, smile:0,   mw:10},
-  love:  {topL:-110,topR:-110,bot:62,  curve:22, sleep:0, sad:0, smile:1,   mw:32}
+  love:  {topL:-110,topR:-110,bot:62,  curve:22, sleep:0, sad:0, smile:1,   mw:32},
+  angry: {topL:-30, topR:-96, bot:110, curve:0,  sleep:0, sad:0, smile:-.7, mw:24},
+  confused:{topL:-110,topR:-58,bot:96, curve:0, sleep:0, sad:0, smile:-.25,mw:16}
 };
 
 const PERSONAS = {
@@ -616,7 +735,9 @@ const PERSONAS = {
   rabugenta:{normal:{topL:-38,topR:-110,smile:-.5,mw:20},  look:[1800,3500], blink:[2600,4800], sleep:90000,
              ai:'Your personality is grumpy in a funny, harmless way: you complain a little and are sarcastic, but you always help in the end and are secretly sweet.'}
 };
-const P = () => PERSONAS[S.persona] || PERSONAS.alegre;
+const P = () => S.persona==='custom'
+  ? {...(PERSONAS[S.customFace]||PERSONAS.alegre), ai: S.customPersona.trim() ? 'Your personality, as described by Theo: ' + S.customPersona.trim().slice(0,400) + '. Stay in this character, but keep answers short and kind.' : PERSONAS.alegre.ai}
+  : (PERSONAS[S.persona] || PERSONAS.alegre);
 function applyPersona(){ Object.assign(MOODS.normal, {topL:-110, topR:-110, smile:0, mw:22}, P().normal); }
 applyPersona();
 
@@ -624,12 +745,37 @@ const IRIS = {
   roxo:['#9a6bff','#4a1cc8','#170548'], azul:['#6bc4ff','#1c5ec8','#061a48'], verde:['#6bffb0','#1c9a6a','#05301f'],
   ambar:['#ffd36b','#c8771c','#482005'], rosa:['#ff8be0','#c81c9a','#480530'], preto:['#6a6a7a','#1e1e2a','#05050a']
 };
+(function buildEyeArt(){
+  // espiral
+  let d = ''; for (let a=0; a<Math.PI*7; a+=0.15){ const r = 2 + a*2.0; const x=(Math.cos(a)*r).toFixed(1), y=(Math.sin(a)*r*1.2).toFixed(1); d += (d?' L':'M') + x + ' ' + y; }
+  document.getElementById('spiral').setAttribute('d', d);
+  // galáxia
+  const g = document.getElementById('galaxy'); let h = '';
+  for (let i=0;i<46;i++){ const arm = i%2, a = i*0.32 + arm*Math.PI, r = 4 + (i/46)*40; h += `<circle cx="${(Math.cos(a)*r).toFixed(1)}" cy="${(Math.sin(a)*r*1.2).toFixed(1)}" r="${(0.8+Math.random()*1.8).toFixed(1)}" opacity="${(0.4+Math.random()*.6).toFixed(2)}"/>`; }
+  g.innerHTML = h;
+  // bolhas
+  const fb = document.getElementById('fxBubbles'); let bh = '';
+  for (let i=0;i<12;i++){ const sz = 4 + Math.random()*12; bh += `<span style="left:${(Math.random()*96).toFixed(1)}%;width:${sz.toFixed(1)}vmin;height:${sz.toFixed(1)}vmin;animation-duration:${(9+Math.random()*12).toFixed(1)}s;animation-delay:${(-Math.random()*20).toFixed(1)}s"></span>`; }
+  fb.innerHTML = bh;
+})();
 function applyLook(){
   document.body.dataset.theme = S.theme;
+  document.body.dataset.bg = S.bg;
+  document.querySelectorAll('#iris .es').forEach(el => el.style.display = el.dataset.es===S.eyeStyle ? '' : 'none');
+  document.getElementById('irisBase').style.display = ['classic','cat','spiral','ring'].includes(S.eyeStyle) ? '' : 'none';
+  document.getElementById('scleraRound').style.display = S.eyeStyle==='robot' ? 'none' : '';
+  document.getElementById('scleraBox').style.display = S.eyeStyle==='robot' ? '' : 'none';
   const c = IRIS[S.eye] || IRIS.roxo;
   document.querySelectorAll('#irisGrad stop').forEach((st_,i)=>st_.setAttribute('stop-color', c[i]));
   const tc = document.querySelector('meta[name=theme-color]'); if (tc) tc.setAttribute('content', getComputedStyle(document.body).getPropertyValue('--bg3').trim() || '#1a0f5c');
 }
+
+// sobrancelha (só aparece nas expressões fortes) e tamanho da pupila
+const BROWS = {
+  angry:{o:1, y:34, tilt:-20, curve:-4}, sad:{o:1, y:14, tilt:15, curve:6}, surprised:{o:1, y:-4, tilt:0, curve:12},
+  confused:{o:1, y:4, tilt:-13, curve:9}, think:{o:.85, y:6, tilt:-8, curve:8}
+};
+const PUPIL = {surprised:.6, love:1.2, happy:1.12, listen:1.15, angry:.78, sad:1.1, think:.9, confused:.85};
 
 /* ================== ELEMENTOS SVG ================== */
 const E = {
@@ -637,7 +783,7 @@ const E = {
   chevron:$('#chevron'), sleepLid:$('#sleepLid'), tear:$('#tear'),
   wrench:$('#wrench'), mic:$('#mic'), mouse:$('#mouse'), mouseMove:$('#mouseMove'), mouseClick:$('#mouseClick'),
   micRings:$('#micRings'), mouth:$('#mouth'), wave:$('#mouthWave'), face:$('#face'),
-  heart:$('#heart'), dotGlint:$('#dotGlint'), hearts:$('#hearts'), zzz:$('#zzz'), mouthO:$('#mouthO'), sparkles:$('#sparkles'),
+  heart:$('#heart'), dotGlint:$('#dotGlint'), brow:$('#brow'), qmark:$('#qmark'), spiral:$('#spiral'), rings:$('#rings'), galaxy:$('#galaxy'), hearts:$('#hearts'), zzz:$('#zzz'), mouthO:$('#mouthO'), sparkles:$('#sparkles'),
   road:$('#road'), roadDashes:$('#roadDashes'), speedLines:$('#speedLines'),
   toolA:$('#toolAnchor'), eyeA:$('#eyeAnchor'), mouthA:$('#mouthAnchor')
 };
@@ -661,6 +807,7 @@ for (let i=0;i<4;i++){
   E.hearts.appendChild(el); HEARTS.push({el, ph:i/4, x:-70+i*45});
 }
 const RINGS = [0,1,2].map(()=>{ const c=document.createElementNS('http://www.w3.org/2000/svg','circle'); c.setAttribute('cx',0); c.setAttribute('cy',-40); E.micRings.appendChild(c); return c; });
+const PUPILS = [...document.querySelectorAll('#iris .pupil')];
 let lastInteract = performance.now(), presenting = false, lastMoodAttr = '';
 st.danceUntil = 0; st.walkUntil = 0;
 const DASHES = [], SPEEDS = [];
@@ -687,7 +834,13 @@ function frame(now){
   cur.mic    = lerp(cur.mic,    st.tool==='mic'?1:0,    kf);
   cur.mouse  = lerp(cur.mouse,  st.tool==='mouse'?1:0,  kf);
   cur.talk   = lerp(cur.talk,   st.talking?1:0,         kf);
-  cur.eyeS   = lerp(cur.eyeS,   st.mood==='listen'?1.06:st.mood==='surprised'?1.16:1, k);
+  cur.eyeS   = lerp(cur.eyeS,   st.mood==='listen'?1.06:st.mood==='surprised'?1.16:st.mood==='angry'?.96:1, k);
+  const bw = BROWS[st.mood] || {o:0, y:0, tilt:0, curve:8};
+  cur.brow = lerp(cur.brow, bw.o, k); cur.browY = lerp(cur.browY, bw.y, k); cur.browTilt = lerp(cur.browTilt, bw.tilt, k); cur.browCurve = lerp(cur.browCurve, bw.curve, k);
+  cur.pupil = lerp(cur.pupil, PUPIL[st.mood] || 1, k);
+  cur.conf = lerp(cur.conf, st.mood==='confused'?1:0, k);
+  if (st.mood !== st.lastMoodPop){ st.lastMoodPop = st.mood; cur.pop = 1; }
+  cur.pop = Math.max(0, cur.pop - dt*2.2);
   cur.love   = lerp(cur.love,   st.mood==='love'?1:0, k);
   cur.surp   = lerp(cur.surp,   st.mood==='surprised'?1:0, kf);
   if (st.mood !== lastMoodAttr){ lastMoodAttr = st.mood; document.body.dataset.mood = st.mood; }
@@ -757,11 +910,27 @@ function frame(now){
   if (st.blinkStart>=0){
     const e = nowMs - st.blinkStart;
     if (e<70) sy = 1-e/70;
-    else if (e<170){ sy = 0; chev = 1; }
+    else if (e<170 || st.winkHold){ sy = 0; chev = 1; if (st.winkHold) st.blinkStart = nowMs - 100; }
     else if (e<250) sy = (e-170)/80;
     else { st.blinkStart = -1; }
   }
-  setA(E.eyeScale, 'transform', `scale(${cur.eyeS.toFixed(3)} ${(Math.max(.02,sy)*cur.eyeS).toFixed(3)})`);
+  // "pulinho" de desenho animado quando muda de expressão
+  const pop = Math.sin(cur.pop*Math.PI*3) * cur.pop * .07;
+  setA(E.eyeScale, 'transform', `scale(${(cur.eyeS*(1-pop)).toFixed(3)} ${(Math.max(.02,sy)*cur.eyeS*(1+pop)).toFixed(3)})`);
+  // sobrancelha + "?"
+  setA(E.brow, 'opacity', (cur.brow * (st.mood==='sleep'?0:1)).toFixed(2));
+  if (cur.brow > .02){
+    const bc = cur.browCurve, by = -122 + cur.browY;
+    setA(E.brow, 'd', `M-62 ${by.toFixed(1)} Q0 ${(by-bc*1.6).toFixed(1)} 62 ${by.toFixed(1)}`);
+    setA(E.brow, 'transform', `rotate(${cur.browTilt.toFixed(1)} 0 ${by.toFixed(1)})`);
+  }
+  setA(E.qmark, 'opacity', cur.conf.toFixed(2));
+  if (cur.conf > .02) setA(E.qmark, 'transform', `translate(0 ${(Math.sin(t*3)*6).toFixed(1)}) rotate(${(Math.sin(t*2)*10).toFixed(1)} 110 -90)`);
+  // pupila e estilos animados
+  for (const pu of PUPILS) setA(pu, 'transform', `scale(${cur.pupil.toFixed(3)})`);
+  if (S.eyeStyle==='spiral') setA(E.spiral, 'transform', `rotate(${((t*160)%360).toFixed(1)})`);
+  if (S.eyeStyle==='ring') setA(E.rings, 'transform', `rotate(${((t*40)%360).toFixed(1)})`);
+  if (S.eyeStyle==='galaxy') setA(E.galaxy, 'transform', `rotate(${((t*12)%360).toFixed(1)})`);
   setA(E.chevron, 'opacity', chev);
   setA(E.eyeScale, 'opacity', sy<0.12 ? 0 : 1);
 
@@ -844,12 +1013,34 @@ function chirp(kind){
 const synth = window.speechSynthesis;
 let voices = [];
 function loadVoices(){ try{ voices = synth ? synth.getVoices() : []; }catch(e){} }
-if (synth){ loadVoices(); synth.onvoiceschanged = loadVoices; }
+if (synth){ loadVoices(); synth.onvoiceschanged = () => { loadVoices(); fillVoices(); }; }
+// escolhe a voz mais "humana" instalada: Premium > Enhanced/Avançada > vozes boas conhecidas > padrão
+function voiceScore(v){
+  const n = v.name.toLowerCase(), lang = S.lang.toLowerCase();
+  let sc = 0;
+  if (/premium/.test(n)) sc += 100;
+  if (/enhanced|avançad|aprimorad|natural|neural/.test(n)) sc += 60;
+  if (/siri/.test(n)) sc += 40;
+  if (/(ava|zoe|samantha|allison|evan|nathan|joelle|noelle|susan|luciana|fernanda)/.test(n)) sc += 20;
+  if (/(albert|bad news|bahh|bells|boing|bubbles|cellos|good news|jester|organ|superstar|trinoids|whisper|wobble|zarvox|fred|junior|ralph|kathy|grandma|grandpa|eddy|flo|reed|rocko|sandy|shelley)/.test(n)) sc -= 80;
+  if (v.lang && v.lang.toLowerCase().replace('_','-')===lang) sc += 10;
+  if (v.localService) sc += 2;
+  return sc;
+}
+function voicesForLang(){
+  const base = S.lang.slice(0,2).toLowerCase();
+  return voices.filter(v=>v.lang && v.lang.toLowerCase().replace('_','-').startsWith(base)).sort((a,b)=>voiceScore(b)-voiceScore(a));
+}
 function pickVoice(){
-  const lang = S.lang.toLowerCase(), base = lang.slice(0,2);
-  const pref = base==='pt' ? ['Luciana','Felipe'] : ['Samantha','Karen','Moira','Tessa'];
-  const same = voices.filter(v=>v.lang && v.lang.toLowerCase().replace('_','-').startsWith(base));
-  return same.find(v=>pref.some(p=>v.name.includes(p))) || same.find(v=>v.lang.toLowerCase().replace('_','-')===lang) || same[0] || null;
+  const list = voicesForLang();
+  if (S.voiceName){ const v = list.find(v=>v.name===S.voiceName); if (v) return v; }
+  return list[0] || null;
+}
+function fillVoices(){
+  const sel = document.getElementById('sVoice'); if (!sel) return;
+  const list = voicesForLang();
+  sel.innerHTML = '<option value="">Automatic (best voice installed)</option>' + list.map(v=>`<option value="${v.name.replace(/"/g,'&quot;')}">${v.name}${voiceScore(v)>=60?' ★':''}</option>`).join('');
+  sel.value = list.some(v=>v.name===S.voiceName) ? S.voiceName : '';
 }
 let speakTok = 0;
 function say(text, {mood, hold=1800} = {}){
@@ -951,7 +1142,7 @@ function micFailed(code){
   openType();
 }
 function openHelp(why){
-  if (why) $('#helpWhy').textContent = why + ' Mas dá pra falar com ela pelo microfone do teclado, que usa o Ditado:';
+  if (why) $('#helpWhy').textContent = why + ' You can still talk to her with the keyboard microphone (dictation):';
   $('#help').classList.add('open');
 }
 $('#helpOk').onclick = () => {
@@ -982,9 +1173,9 @@ function systemPrompt(){
 Always answer in ${lang}.
 ${P().ai}
 Your reply is spoken out loud, so: maximum 2 short sentences, no emojis, no markdown, no lists.
-ALWAYS start your reply with exactly one tag that sets your face: [happy], [sad], [normal], [surprised], [love], [dance], [walk] or [creating].
+ALWAYS start your reply with exactly one tag that sets your face: [happy], [sad], [normal], [surprised], [love], [angry], [confused], [dance], [walk] or [creating].
 Use [walk] when the user asks you to go for a walk, drive, move around or go somewhere (you ride on a little mBot robot car).
-Use [dance] when asked to dance or celebrate, [love] for sweet or affectionate moments, [surprised] for amazing facts.
+Use [dance] when asked to dance or celebrate, [love] for sweet or affectionate moments, [surprised] for amazing facts, [angry] for playful annoyance (never real anger), [confused] when the question makes no sense or you are not sure.
 Use [creating] when the user asks you to do something on the computer (open a program or game, create a file, search, type, draw, build something). In that case say briefly what you are doing, as if you were really doing it.${S.linkOn ? `
 You ARE connected to the user's computer right now. When you use [creating], also put exactly ONE command at the very end of your reply, in this exact format (it is not spoken):
 <pc>{"cmd":"open","url":"https://...","label":"Site name"}</pc>  to open a website,
@@ -1035,7 +1226,7 @@ function parseReply(txt){
   const m = txt.match(/^\s*\[(\w+)\]\s*/);
   let tag = m ? m[1].toLowerCase() : 'normal';
   let text = (m ? txt.slice(m[0].length) : txt).replace(/\[(\w+)\]/g,'').replace(/[*_#`]/g,'').trim();
-  const map = {happy:'happy',feliz:'happy',sad:'sad',triste:'sad',creating:'create',criando:'create',normal:'normal',surprised:'surprised',surpresa:'surprised',love:'love',amor:'love',dance:'dance',danca:'dance',walk:'walk',passeio:'walk'};
+  const map = {happy:'happy',feliz:'happy',sad:'sad',triste:'sad',creating:'create',criando:'create',normal:'normal',surprised:'surprised',surpresa:'surprised',love:'love',amor:'love',dance:'dance',danca:'dance',walk:'walk',passeio:'walk',angry:'angry',bravo:'angry',confused:'confused',confuso:'confused'};
   const action = pc ? 'create' : (map[tag]||'normal');
   return {action, text: text || '...', pc: S.linkOn ? pc : null};
 }
@@ -1114,12 +1305,12 @@ function linkStart(){
   linkUI();
 }
 function linkUI(){
-  $('#bLink').textContent = S.linkOn ? '🖥️ Desligar conexão com o PC' : '🖥️ Ligar conexão com o PC';
+  $('#bLink').textContent = S.linkOn ? '🖥️ Turn off PC link' : '🖥️ Turn on PC link';
   $('#linkBox').style.display = S.linkOn ? '' : 'none';
   $('#linkCode').textContent = S.linkCode || '—';
-  const url = SITE_OK ? (location.origin + location.pathname.replace(/[^/]*$/,'') + 'pc.html') : 'o site da Tyola /pc.html (aqui no app do Claude não funciona)';
+  const url = SITE_OK ? (location.origin + location.pathname.replace(/[^/]*$/,'') + 'pc.html') : 'Tyola website /pc.html (does not work inside the Claude app)';
   $('#linkUrl').textContent = url;
-  $('#linkStatus').textContent = !S.linkOn ? '' : linkAlive() ? '🟢 PC conectado' : '🟡 esperando o PC…';
+  $('#linkStatus').textContent = !S.linkOn ? '' : linkAlive() ? '🟢 PC connected' : '🟡 waiting for the PC…';
   $('#linkTag').classList.toggle('on', S.linkOn && linkAlive());
 }
 setInterval(()=>{ if (S.linkOn) linkUI(); }, 5000);
@@ -1264,7 +1455,7 @@ async function act({action, text, pc}){
     await say(text, {mood:'happy', hold:2600});
     await new Promise(r=>setTimeout(r, Math.max(0, st.danceUntil - performance.now())));
   } else {
-    const mood = ['happy','sad','surprised','love'].includes(action) ? action : 'normal';
+    const mood = ['happy','sad','surprised','love','angry','confused'].includes(action) ? action : 'normal';
     if (mood==='happy') chirp('happy'); if (mood==='sad') chirp('sad'); if (mood==='surprised') chirp('wake');
     await say(text, {mood, hold: mood==='normal'?0:2600});
   }
@@ -1322,7 +1513,9 @@ addEventListener('resize', fit); addEventListener('orientationchange', ()=>setTi
 // Quando o teclado do iPad abre, ele cobre a página e empurra tudo pra cima.
 // Aqui a Tyola segue só a parte que está visível: a barra fica no topo e o rosto encolhe acima do teclado.
 const vv = window.visualViewport;
-function unshift(){ if (window.scrollY || window.scrollX) window.scrollTo(0,0); if (document.scrollingElement) document.scrollingElement.scrollTop = 0; }
+function unshift(){ if (window.scrollY || window.scrollX) window.scrollTo(0,0); if (document.scrollingElement) document.scrollingElement.scrollTop = 0; if (stage.scrollTop || stage.scrollLeft){ stage.scrollTop = 0; stage.scrollLeft = 0; } }
+// a área da Tyola nunca pode rolar (o fundo é maior que a tela de propósito)
+stage.addEventListener('scroll', () => { if (stage.scrollTop || stage.scrollLeft){ stage.scrollTop = 0; stage.scrollLeft = 0; } });
 const bezel = $('#bezel');
 function syncViewport(){
   unshift();
@@ -1353,7 +1546,7 @@ function lookAtPoint(cx, cy){
   st.lookT.y = Math.max(-1, Math.min(1, (p.y-EYE.y)/160));
   st.lookHold = performance.now() + 1600;
 }
-const isUI = el => el.closest('#bar,#panel,#typebox,#shade,#boot,#help');
+const isUI = el => el.closest('#bar,#panel,#typebox,#shade,#boot,#help,#timer');
 stage.addEventListener('pointermove', e => { if (!isUI(e.target) && st.mood!=='sleep') lookAtPoint(e.clientX, e.clientY); });
 stage.addEventListener('pointerdown', e => {
   if (isUI(e.target) || !booted) return;
@@ -1413,10 +1606,22 @@ function applyUI(){
   $('#bSpk .waves').style.display = S.voice ? '' : 'none';
   $('#bSpk').classList.toggle('off', !S.voice);
   $('#plusTag').classList.toggle('on', hasAI());
+  $('#bPlus').classList.toggle('ai', S.aiOn);
 }
 $('#bMic').onclick = () => { S.mic = !S.mic; save(); applyUI(); };
 $('#bSpk').onclick = () => { S.voice = !S.voice; if(!S.voice) shutUp(); save(); applyUI(); };
-$('#bPlus').onclick = () => { $('#typebox').classList.contains('open') ? closeType() : openType(); };
+$('#bKey').onclick = () => { $('#typebox').classList.contains('open') ? closeType() : openType(); };
+$('#bPlus').onclick = () => {
+  if (!S.aiOn && !aiReady()){
+    chirp('sad');
+    caption(esc(S.provider==='app' ? 'Tyola+ needs AI: inside the Claude app it works by itself; on the website, open Menu › Tyola+ and add an API key.' : 'Tyola+ needs an API key: open Menu › Tyola+ (AI).'), 5000);
+    return;
+  }
+  S.aiOn = !S.aiOn; save(); applyUI(); history = [];
+  chirp(S.aiOn ? 'wake' : 'end');
+  if (S.aiOn){ st.mood = 'surprised'; caption('<b>TYOLA+ ON</b> · AI brain activated', 2500); setTimeout(()=>{ if (st.mood==='surprised') st.mood='happy'; setTimeout(()=>{ if (st.mood==='happy' && !st.busy) st.mood='normal'; }, 1500); }, 700); }
+  else caption('<b>Tyola+ off</b> · normal mode', 2000);
+};
 const openPanel = v => { $('#panel').classList.toggle('open', v); $('#shade').classList.toggle('open', v); };
 $('#bMenu').onclick = () => openPanel(true);
 $('#shade').onclick = () => openPanel(false);
@@ -1433,7 +1638,7 @@ function fillModels(){
 }
 function loadForm(){
   $('#sProvider').value = S.provider; $('#sKey').value = S.key; $('#sCustom').value = S.custom;
-  $('#sBase').value = S.base; $('#sInput').value = S.input; $('#sScreen').value = S.screen; $('#sPersona').value = S.persona; $('#sTheme').value = S.theme; $('#sEye').value = S.eye; $('#sGlint').value = S.glint; $('#sLang').value = S.lang; $('#sRate').value = S.rate; $('#sPitch').value = S.pitch;
+  $('#sBase').value = S.base; $('#sInput').value = S.input; $('#sScreen').value = S.screen; $('#sPersona').value = S.persona; $('#customPersonaWrap').style.display = S.persona==='custom' ? '' : 'none'; $('#sCustomPersona').value = S.customPersona; $('#sCustomFace').value = S.customFace; $('#sEyeStyle').value = S.eyeStyle; $('#sBg').value = S.bg; $('#sTheme').value = S.theme; $('#sEye').value = S.eye; $('#sGlint').value = S.glint; $('#sLang').value = S.lang; $('#sRate').value = S.rate; $('#sPitch').value = S.pitch;
   fillModels();
 }
 $('#sProvider').onchange = e => { S.provider = e.target.value; S.model=''; fillModels(); save(); applyUI(); };
@@ -1441,8 +1646,14 @@ $('#sModel').onchange    = e => { S.model = e.target.value; fillModels(); save()
 $('#sCustom').oninput    = e => { S.custom = e.target.value; save(); applyUI(); };
 $('#sKey').oninput       = e => { S.key = e.target.value; save(); applyUI(); };
 $('#sBase').oninput      = e => { S.base = e.target.value; save(); };
-$('#sLang').onchange     = e => { S.lang = e.target.value; history=[]; save(); };
-$('#sPersona').onchange  = e => { S.persona = e.target.value; applyPersona(); save(); chirp('pop'); st.nextLook = 0; };
+$('#sLang').onchange     = e => { S.lang = e.target.value; S.voiceName=''; history=[]; save(); fillVoices(); };
+$('#sPersona').onchange  = e => { S.persona = e.target.value; $('#customPersonaWrap').style.display = S.persona==='custom' ? '' : 'none'; applyPersona(); save(); chirp('pop'); st.nextLook = 0; };
+$('#sCustomPersona').oninput = e => { S.customPersona = e.target.value; save(); };
+$('#sCustomFace').onchange = e => { S.customFace = e.target.value; applyPersona(); save(); };
+$('#sEyeStyle').onchange = e => { S.eyeStyle = e.target.value; save(); applyLook(); chirp('pop'); };
+$('#sBg').onchange       = e => { S.bg = e.target.value; save(); applyLook(); };
+$('#sVoice').onchange    = e => { S.voiceName = e.target.value; save(); };
+$('#bVoiceTest').onclick = () => { openPanel(false); setTimeout(()=>say(S.lang==='pt-BR' ? 'Oi! Essa é a minha voz. Gostou?' : "Hi! This is my voice. Do you like it?", {mood:'happy'}), 300); };
 $('#sTheme').onchange    = e => { S.theme = e.target.value; save(); applyLook(); };
 $('#sEye').onchange      = e => { S.eye = e.target.value; save(); applyLook(); };
 $('#sGlint').onchange    = e => { S.glint = e.target.value; save(); };
@@ -1459,16 +1670,16 @@ $('#bWalk').onclick = () => { openPanel(false); setTimeout(()=>act({action:'walk
 $('#sWalk').value = S.walkSecs; $('#walkVal').textContent = S.walkSecs + ' s';
 $('#sWalk').oninput = e => { S.walkSecs = +e.target.value; $('#walkVal').textContent = S.walkSecs + ' s'; save(); };
 $('#bPresent').onclick = () => { openPanel(false); setTimeout(present, 350); };
-$('#bSfx').onclick = () => { S.sfx = !S.sfx; save(); $('#bSfx').textContent = 'Sons de robô: ' + (S.sfx?'ligados':'desligados'); chirp('pop'); };
-$('#bSfx').textContent = 'Sons de robô: ' + (S.sfx?'ligados':'desligados');
-$('#bClear').onclick     = () => { history = []; $('#keyStatus').textContent = 'Conversa apagada.'; };
+$('#bSfx').onclick = () => { S.sfx = !S.sfx; save(); $('#bSfx').textContent = 'Robot sounds: ' + (S.sfx?'on':'off'); chirp('pop'); };
+$('#bSfx').textContent = 'Robot sounds: ' + (S.sfx?'on':'off');
+$('#bClear').onclick     = () => { history = []; $('#keyStatus').textContent = 'Chat cleared.'; };
 $('#bTestKey').onclick   = async () => {
   const ks = $('#keyStatus');
-  if (!hasAI()){ ks.textContent = S.provider==='app' ? 'O Claude do app só funciona com a Tyola aberta como artefato no claude.ai.' : 'Coloca a chave e o modelo primeiro.'; ks.style.color='#ffb4c8'; return; }
-  ks.textContent = 'Testando…'; ks.style.color='#c7bcff';
+  if (!aiReady()){ ks.textContent = S.provider==='app' ? 'Claude in the app only works when Tyola is opened inside Claude.' : 'Add the key and the model first.'; ks.style.color='#ffb4c8'; return; }
+  ks.textContent = 'Testing…'; ks.style.color='#c7bcff';
   const saved = history; history = [];
-  try{ const r = await askAI('Say hi in one short sentence.'); ks.textContent = '✓ Funcionou: ' + r.text; ks.style.color='#9ff0c0'; }
-  catch(e){ ks.textContent = '✗ Erro ' + (e.code||e.status||'de rede (pode ser bloqueio de CORS desse provedor)') + (e.body? ' — '+String(e.body).slice(0,140):''); ks.style.color='#ffb4c8'; }
+  try{ const r = await askAI('Say hi in one short sentence.'); ks.textContent = '✓ It works: ' + r.text; ks.style.color='#9ff0c0'; }
+  catch(e){ ks.textContent = '✗ Error ' + (e.code||e.status||'network (this provider may block browsers)') + (e.body? ' — '+String(e.body).slice(0,140):''); ks.style.color='#ffb4c8'; }
   history = saved;
 };
 document.querySelectorAll('[data-test]').forEach(b => b.onclick = () => {
@@ -1476,6 +1687,8 @@ document.querySelectorAll('[data-test]').forEach(b => b.onclick = () => {
   const k = b.dataset.test;
   if (k==='listen'){ listen(); return; }
   setTimeout(()=>{
+    if (k==='angry'||k==='confused'){ shutUp(); st.mood=k; chirp(k==='angry'?'sad':'pop'); setTimeout(()=>{ if(!st.busy) st.mood='normal'; },3500); }
+    if (k==='wink'){ shutUp(); st.mood='happy'; chirp('happy'); st.blinkStart = performance.now(); st.winkHold = true; setTimeout(()=>{ st.winkHold=false; },650); setTimeout(()=>{ if(!st.busy) st.mood='normal'; },2200); }
     if (k==='surprised'||k==='love'){ shutUp(); st.mood=k; chirp(k==='love'?'happy':'wake'); setTimeout(()=>{ if(!st.busy) st.mood='normal'; },3500); }
     if (k==='dance') act({action:'dance', text:L().dance});
     if (k==='sleep') { shutUp(); st.mood='sleep'; }
@@ -1504,7 +1717,7 @@ $('#boot').addEventListener('click', () => {
   setTimeout(()=> say(L().hello, {mood:'happy', hold:1800}), 1300);
 });
 
-loadForm(); applyUI(); applyLook(); if (S.linkOn) linkStart(); linkUI();
+loadForm(); fillVoices(); applyUI(); applyLook(); if (S.linkOn) linkStart(); linkUI();
 })();
 </script>
 </body>
