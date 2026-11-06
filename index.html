@@ -151,6 +151,31 @@ body.typing #caption{bottom:auto;top:calc(124px + env(safe-area-inset-top))}
   background:rgba(45,12,110,.65);border:1px solid rgba(214,190,255,.35);box-shadow:0 0 24px rgba(170,110,255,.45);display:none}
 #timer.on{display:block}
 #timer small{font-size:11px;font-weight:600;color:var(--soft);margin-left:6px;letter-spacing:0}
+#panel .phead{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px}
+#bPanelClose{border:0;width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.12);color:#fff;font-size:16px}
+#panel .tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+#panel .tile{border:0;border-radius:16px;padding:12px 4px 10px;color:#fff;font-weight:800;font-size:13px;display:flex;flex-direction:column;align-items:center;gap:4px;
+  box-shadow:0 4px 14px rgba(0,0,0,.25),inset 0 1px 0 rgba(255,255,255,.25)}
+#panel .tile span{font-size:24px;line-height:1}
+#panel .tile:active{transform:scale(.96)}
+#panel .t1{background:linear-gradient(135deg,#b05cff,#6b4dff)} #panel .t2{background:linear-gradient(135deg,#ff6ad5,#b05cff)}
+#panel .t3{background:linear-gradient(135deg,#4dc3ff,#6b4dff)} #panel .t4{background:linear-gradient(135deg,#4de0b0,#3c8bff)}
+#panel .t5{background:linear-gradient(135deg,#ffb04d,#ff5c8a)} #panel .t6{background:rgba(255,255,255,.14)}
+#panel .tile.on{outline:3px solid #fff;outline-offset:-3px}
+#panel .box{background:rgba(255,255,255,.08);border-radius:14px;padding:10px 12px;margin-bottom:12px;font-size:14px}
+#panel .box b#linkCode{font-size:22px;letter-spacing:3px}
+#panel .sec{background:rgba(255,255,255,.06);border:1px solid rgba(214,190,255,.14);border-radius:14px;margin-bottom:8px;padding:0 12px}
+#panel .sec[open]{padding-bottom:12px;background:rgba(255,255,255,.09)}
+#panel .sec summary{list-style:none;cursor:pointer;font-weight:800;font-size:15px;padding:13px 0;display:flex;justify-content:space-between;align-items:center}
+#panel .sec summary::-webkit-details-marker{display:none}
+#panel .sec summary::after{content:"›";font-size:22px;color:var(--soft);transition:transform .2s}
+#panel .sec[open] summary::after{transform:rotate(90deg)}
+#panel .two{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+#panel .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+#panel .chips button{border:0;border-radius:999px;padding:8px 12px;font-size:13px;font-weight:700;background:rgba(143,123,255,.25);color:#fff}
+#panel .wide{width:100%;margin-top:10px}
+#panel .hint.top{margin:0 0 4px}
+#panel{width:min(420px,94%)!important}
 #panel .present{background:linear-gradient(90deg,#b05cff,#6b4dff);color:#fff;width:100%;font-size:16px;padding:12px;margin-bottom:4px}
 #bootLogo{width:min(560px,82vw);height:auto;overflow:visible;filter:drop-shadow(0 0 24px rgba(180,120,255,.6))}
 #bootLogo .blink{transform-box:fill-box;transform-origin:center;animation:logoBlink 4s infinite}
@@ -427,94 +452,52 @@ body.iphone8 #stage{border-radius:0;box-shadow:0 0 0 1px rgba(214,190,255,.18)}
 
   <div id="shade"></div>
   <aside id="panel">
-    <h2>Tyola</h2>
-    <div class="sub">Settings · say it “Tie-oh-la” · <b id="verLabel">v1.4</b></div>
-
-    <h3>Show time</h3>
-    <button class="btn present" id="bPresent" type="button">▶ Presentation mode</button>
-    <div class="hint">Tyola introduces herself and shows off everything she can do. Tap the screen to stop.</div>
-    <button class="btn" id="bHelp" type="button" style="width:100%;margin-top:6px">❓ How to talk to Tyola (microphone)</button>
-    <button class="btn" id="bSadMode" type="button" style="width:100%;margin-top:6px">💜 I'm feeling down</button>
-
-    <h3>Tyola+ (AI)</h3>
-    <div class="hint" style="margin-top:0">Tap the <b>+</b> on the top bar to turn Tyola+ on or off. When it's off, Tyola works like a smart speaker: ready-made answers, timer, time, dance, walk and PC commands.</div>
-    <label for="sProvider">AI provider</label>
-    <select id="sProvider">
-      <option value="app">Claude in the app (no key, only inside Claude)</option>
-      <option value="anthropic">Claude with an API key (for the website)</option>
-      <option value="openai">OpenAI-compatible (GitHub Models etc.)</option>
-    </select>
-    <div id="baseWrap">
-      <label for="sBase">API address</label>
-      <input id="sBase" type="url" placeholder="https://models.github.ai/inference/chat/completions">
+    <div class="phead">
+      <div><h2>Tyola</h2><div class="sub">say it “Tie-oh-la” · <b id="verLabel">v1.4</b></div></div>
+      <button id="bPanelClose" type="button" aria-label="Close">✕</button>
     </div>
-    <div id="appNote" class="hint">Uses Claude from your own account. The first question asks you to allow it. This only exists inside the Claude app; on the website, switch to “API key”.</div>
-    <div id="keyWrap">
-      <label for="sKey">API key / token</label>
-      <input id="sKey" type="password" placeholder="paste here (saved only on this device)">
-      <div class="hint">The key never goes into the code or GitHub. It stays only on this device.</div>
+
+    <div class="tiles">
+      <button class="tile t1" id="bPresent" type="button"><span>▶</span>Show</button>
+      <button class="tile t2" id="bSadMode" type="button"><span>💜</span>I'm sad</button>
+      <button class="tile t3" id="bWalk" type="button"><span>🚗</span>Walk</button>
+      <button class="tile t4" id="bRide" type="button"><span>📳</span>Ride</button>
+      <button class="tile t5" id="bLink" type="button"><span>🖥️</span>PC link</button>
+      <button class="tile t6" id="bHelp" type="button"><span>❓</span>Help</button>
     </div>
-    <label for="sModel">Model</label>
-    <select id="sModel"></select>
-    <div id="customWrap" style="display:none">
-      <label for="sCustom">Model name</label>
-      <input id="sCustom" type="text" placeholder="e.g. openai/gpt-4.1-mini">
+
+    <div id="linkBox" class="box" style="display:none">
+      <div>Code <b id="linkCode"></b> <span id="linkStatus"></span></div>
+      <div class="hint">On the computer, open <b id="linkUrl"></b> and type this code.</div>
+      <div class="row"><button id="bLinkTest" type="button">Test YouTube</button><button id="bLinkNew" type="button">New code</button></div>
     </div>
-    <button class="btn primary" id="bTestKey" type="button">Test connection</button>
-    <div id="keyStatus"></div>
 
-    <h3>Pictures</h3>
-    <label for="sPic">Picture maker</label>
-    <select id="sPic">
-      <option value="auto">Automatic (AI pictures on the website, drawings inside Claude)</option>
-      <option value="pollinations">AI pictures (Pollinations, free, website only)</option>
-      <option value="svg">Tyola's own drawings (works everywhere)</option>
-    </select>
-    <div class="hint">Say “draw a cat astronaut” or “make a picture of a pizza dragon”. AI pictures come from <b>pollinations.ai</b>, a free service: one picture every 15 seconds, and it can add a small logo. Pictures work even with Tyola+ off; with Tyola+ on she writes a better description and remembers them.</div>
-
-    <h3>Tyola+ memory</h3>
-    <div class="hint" style="margin-top:0">What Tyola remembers. It's saved only on this device and is used only when Tyola+ is on.</div>
-    <div id="memList"></div>
-    <div id="memGallery"></div>
-    <div class="row" style="margin-top:8px"><button id="bForget" type="button">🧹 Forget everything</button></div>
-
-    <h3>Her look</h3>
-    <label for="sEyeStyle">Eye style</label>
-    <select id="sEyeStyle">
-      <option value="classic">👁️ Classic</option>
+    <details class="sec" open><summary>🎨 Look</summary>
+      <label for="sEyeStyle">Eye</label><select id="sEyeStyle"><option value="classic">👁️ Classic</option>
       <option value="cat">🐱 Cat (slit pupil)</option>
       <option value="robot">🤖 Robot (square screen eye)</option>
       <option value="spiral">🌀 Hypno spiral</option>
       <option value="pixel">👾 Pixel (8-bit)</option>
       <option value="ring">💿 Cyber rings</option>
-      <option value="galaxy">🌌 Galaxy</option>
-    </select>
-    <label for="sEye">Eye color</label>
-    <select id="sEye">
-      <option value="roxo">Purple</option><option value="azul">Blue</option><option value="verde">Green</option>
-      <option value="ambar">Amber</option><option value="rosa">Pink</option><option value="preto">Black</option>
-    </select>
-    <label for="sGlint">Eye sparkle</label>
-    <select id="sGlint">
-      <option value="estrela">⭐ Star</option><option value="bolinha">● Dot</option><option value="nenhum">None</option>
-    </select>
-    <label for="sBg">Background</label>
-    <select id="sBg">
-      <option value="aurora">✨ Aurora (moving glow)</option>
+      <option value="galaxy">🌌 Galaxy</option></select>
+      <div class="two">
+        <div><label for="sEye">Eye color</label><select id="sEye"><option value="roxo">Purple</option><option value="azul">Blue</option><option value="verde">Green</option>
+      <option value="ambar">Amber</option><option value="rosa">Pink</option><option value="preto">Black</option></select></div>
+        <div><label for="sGlint">Sparkle</label><select id="sGlint"><option value="estrela">⭐ Star</option><option value="bolinha">● Dot</option><option value="nenhum">None</option></select></div>
+      </div>
+      <div class="two">
+        <div><label for="sBg">Background</label><select id="sBg"><option value="aurora">✨ Aurora (moving glow)</option>
       <option value="stars">🌠 Space (flying stars)</option>
       <option value="grid">🕹️ Retro grid (synthwave)</option>
       <option value="bubbles">🫧 Bubbles</option>
-      <option value="plain">⬛ Plain (fastest)</option>
-    </select>
-    <label for="sTheme">Color theme</label>
-    <select id="sTheme">
-      <option value="roxo">Purple (original)</option><option value="azul">Blue</option><option value="rosa">Pink</option>
-      <option value="verde">Green</option><option value="laranja">Orange</option><option value="noite">Night</option>
-    </select>
+      <option value="plain">⬛ Plain (fastest)</option></select></div>
+        <div><label for="sTheme">Color</label><select id="sTheme"><option value="roxo">Purple (original)</option><option value="azul">Blue</option><option value="rosa">Pink</option>
+      <option value="verde">Green</option><option value="laranja">Orange</option><option value="noite">Night</option></select></div>
+      </div>
+    </details>
 
-    <h3>Personality</h3>
-    <select id="sPersona">
-      <option value="alegre">😊 Cheerful: smiles all the time</option>
+    <details class="sec"><summary>😊 Personality</summary>
+      <select id="sPersona"><option value="alegre">😊 Cheerful: smiles all the time</option>
       <option value="calma">😌 Calm: slow and peaceful</option>
       <option value="sonolenta">😴 Sleepy: half-closed eye, naps fast</option>
       <option value="agitada">⚡ Hyper: looks everywhere, never sleeps</option>
@@ -523,96 +506,94 @@ body.iphone8 #stage{border-radius:0;box-shadow:0 0 0 1px rgba(214,190,255,.18)}
       <option value="pirata">🏴‍☠️ Pirate: arrr, matey!</option>
       <option value="cientista">🔬 Scientist: loves fun facts</option>
       <option value="dramatica">🎭 Drama queen: everything is HUGE</option>
-      <option value="custom">✍️ Write your own…</option>
-    </select>
-    <div id="customPersonaWrap" style="display:none">
-      <label for="sCustomPersona">Describe her personality</label>
-      <textarea id="sCustomPersona" rows="3" placeholder="e.g. a pirate robot who loves pizza and says “arrr”"></textarea>
-      <label for="sCustomFace">Resting face</label>
-      <select id="sCustomFace">
-        <option value="alegre">Smiling</option><option value="calma">Relaxed</option><option value="sonolenta">Sleepy</option>
-        <option value="agitada">Wide awake</option><option value="rabugenta">Grumpy</option><option value="timida">Shy</option><option value="pirata">Pirate</option>
-      </select>
-    </div>
-    <div class="hint">Changes her resting face and how Tyola+ talks.</div>
-
-    <h3>Voice</h3>
-    <label for="sLang">Tyola's language</label>
-    <select id="sLang">
-      <option value="en-US">English</option>
-      <option value="pt-BR">Portuguese</option>
-    </select>
-    <label for="sVoice">Voice</label>
-    <select id="sVoice"></select>
-    <div class="hint">For a more human voice: iPhone Settings › Accessibility › Spoken Content › Voices › English › download a voice marked <b>Enhanced</b> or <b>Premium</b> (Ava, Zoe, Samantha…). Then pick it here.</div>
-    <label for="sRate">Speed</label>
-    <input id="sRate" type="range" min="0.7" max="1.4" step="0.05">
-    <label for="sPitch">Pitch</label>
-    <input id="sPitch" type="range" min="0.8" max="1.8" step="0.05">
-    <button class="btn" id="bVoiceTest" type="button" style="width:100%;margin-top:8px">🔊 Test voice</button>
-    <label for="sInput">How to talk to her</label>
-    <select id="sInput">
-      <option value="auto">Automatic (keyboard inside Claude, mic on the website)</option>
-      <option value="keyboard">Always keyboard (🎤 dictation)</option>
-      <option value="mic">Always direct microphone</option>
-    </select>
-
-    <h3>Connect to a PC (Tyola Link)</h3>
-    <button class="btn present" id="bLink" type="button" style="background:linear-gradient(90deg,#4de0b0,#4d7bff)">🖥️ Turn on PC link</button>
-    <div id="linkBox" style="display:none">
-      <div style="margin:10px 0 4px">Code: <b id="linkCode" style="font-size:24px;letter-spacing:3px"></b> <span id="linkStatus" style="font-size:13px"></span></div>
-      <div class="hint">On the computer (or any device), open <b id="linkUrl"></b> and type this code. Then just ask: “open YouTube”, “search for cats”, “type hello world”, “open calculator”.</div>
-      <div class="row" style="margin-top:8px">
-        <button id="bLinkTest" type="button">Test: open YouTube on the PC</button>
-        <button id="bLinkNew" type="button">New code</button>
+      <option value="custom">✍️ Write your own…</option></select>
+      <div id="customPersonaWrap" style="display:none">
+        <label for="sCustomPersona">Describe her</label>
+        <textarea id="sCustomPersona" rows="3" placeholder="e.g. a pirate robot who loves pizza"></textarea>
+        <label for="sCustomFace">Resting face</label><select id="sCustomFace"><option value="alegre">Smiling</option><option value="calma">Relaxed</option><option value="sonolenta">Sleepy</option>
+        <option value="agitada">Wide awake</option><option value="rabugenta">Grumpy</option><option value="timida">Shy</option><option value="pirata">Pirate</option></select>
       </div>
-    </div>
+    </details>
 
-    <h3>Walk (mBot)</h3>
-    <button class="btn present" id="bWalk" type="button" style="background:linear-gradient(90deg,#4dc3ff,#7a4dff)">🚗 Go for a walk</button>
-    <label for="sWalk">Walk length: <b id="walkVal"></b></label>
-    <input id="sWalk" type="range" min="5" max="60" step="5">
-    <div class="hint">She counts 3, 2, 1, “Go!”: start the mBot on “Go!”. Saying “let's go for a walk” works too. Tap the screen to stop.</div>
-    <button class="btn" id="bRide" type="button" style="width:100%;margin-top:8px">📳 Ride mode (motion sensor)</button>
-    <div class="hint">With the phone on the mBot, she feels the ride: looks into the turns, gets excited when the car moves, jumps on bumps, and the road only rolls while the car is really moving. Shake the phone to make her dizzy! Works on the website only (phone or tablet).</div>
+    <details class="sec"><summary>🎭 Try her faces</summary>
+      <div class="chips">
+        <button data-test="happy">Happy</button>
+        <button data-test="sad">Sad</button>
+        <button data-test="angry">Angry</button>
+        <button data-test="confused">Confused</button>
+        <button data-test="surprised">Surprised</button>
+        <button data-test="love">Love</button>
+        <button data-test="wink">Wink</button>
+        <button data-test="blink">Blink</button>
+        <button data-test="dizzy">Dizzy</button>
+        <button data-test="blush">Blush</button>
+      </div>
+      <div class="chips">
+        <button data-test="talk">Talk</button>
+        <button data-test="create">Working</button>
+        <button data-test="dance">Dance</button>
+        <button data-test="sleep">Sleep</button>
+        <button data-test="timer">Timer 10s</button>
+        <button data-test="listen">Listen</button>
+        <button data-test="yawn">Yawn</button>
+        <button data-test="hum">Hum</button>
+        <button data-test="spin">Spin</button>
+        <button data-test="hug">Hug</button>
+        <button data-test="breathe">Breathe</button>
+      </div>
+    </details>
 
-    <h3>Try her faces</h3>
-    <div class="row">
-      <button data-test="happy">Happy</button>
-      <button data-test="sad">Sad</button>
-      <button data-test="angry">Angry</button>
-      <button data-test="confused">Confused</button>
-      <button data-test="surprised">Surprised</button>
-      <button data-test="love">Love</button>
-      <button data-test="wink">Wink</button>
-      <button data-test="blink">Blink</button>
-      <button data-test="talk">Talk</button>
-      <button data-test="create">Working</button>
-      <button data-test="dance">Dance</button>
-      <button data-test="sleep">Sleep</button>
-      <button data-test="timer">Timer 10s</button>
-      <button data-test="listen">Listen</button>
-      <button data-test="dizzy">Dizzy</button>
-      <button data-test="yawn">Yawn</button>
-      <button data-test="hum">Hum</button>
-      <button data-test="spin">Spin</button>
-      <button data-test="blush">Blush</button>
-      <button data-test="hug">Hug</button>
-      <button data-test="breathe">Breathe</button>
-    </div>
+    <details class="sec"><summary>✨ Tyola+ (AI brain)</summary>
+      <div class="hint top">Tap <b>+</b> on the top bar to turn it on or off.</div>
+      <label for="sProvider">AI</label><select id="sProvider"><option value="app">Claude in the app (no key, only inside Claude)</option>
+      <option value="anthropic">Claude with an API key (for the website)</option>
+      <option value="openai">OpenAI-compatible (GitHub Models etc.)</option></select>
+      <div id="baseWrap"><label for="sBase">API address</label><input id="sBase" type="url" placeholder="https://models.github.ai/inference/chat/completions"></div>
+      <div id="appNote" class="hint">Uses Claude from your account, no key needed (only inside the Claude app).</div>
+      <div id="keyWrap"><label for="sKey">API key</label><input id="sKey" type="password" placeholder="saved only on this device"></div>
+      <label for="sModel">Model</label><select id="sModel"></select>
+      <div id="customWrap" style="display:none"><label for="sCustom">Model name</label><input id="sCustom" type="text" placeholder="e.g. openai/gpt-4.1-mini"></div>
+      <button class="btn wide" id="bTestKey" type="button">Test connection</button>
+      <div id="keyStatus"></div>
+    </details>
 
-    <h3>Screen</h3>
-    <label for="sScreen">Screen shape</label>
-    <select id="sScreen">
-      <option value="full">Full screen</option>
-      <option value="iphone8">iPhone 8 shape (16:9)</option>
-    </select>
-    <div class="row" style="margin-top:10px">
-      <button id="bHideBar" type="button">Hide top bar</button>
-      <button id="bClear" type="button">Clear chat</button>
-      <button id="bSfx" type="button">Robot sounds</button>
-    </div>
-    <div class="hint">Works without AI: “set a timer for 2 minutes”, “what time is it?”, “dance!”, “let's go for a walk”. After a while without anyone around she falls asleep; tap to wake her up.<br>Hidden top bar: tap with two fingers to bring it back.<br>Tip: iPhone Settings › Display & Brightness › Auto-Lock › Never.</div>
+    <details class="sec"><summary>🧠 Memory</summary>
+      <div id="memList"></div>
+      <div id="memGallery"></div>
+      <button class="btn wide" id="bForget" type="button">🧹 Forget everything</button>
+    </details>
+
+    <details class="sec"><summary>🔊 Voice &amp; talking</summary>
+      <div class="two">
+        <div><label for="sLang">Language</label><select id="sLang"><option value="en-US">English</option>
+      <option value="pt-BR">Portuguese</option></select></div>
+        <div><label for="sInput">Talk with</label><select id="sInput"><option value="auto">Automatic (keyboard inside Claude, mic on the website)</option>
+      <option value="keyboard">Always keyboard (🎤 dictation)</option>
+      <option value="mic">Always direct microphone</option></select></div>
+      </div>
+      <label for="sVoice">Voice</label><select id="sVoice"></select>
+      <div class="two">
+        <div><label for="sRate">Speed</label><input id="sRate" type="range" min="0.7" max="1.4" step="0.05"></div>
+        <div><label for="sPitch">Pitch</label><input id="sPitch" type="range" min="0.8" max="1.8" step="0.05"></div>
+      </div>
+      <button class="btn wide" id="bVoiceTest" type="button">🔊 Test voice</button>
+      <div class="hint">More human voice: iPhone Settings › Accessibility › Spoken Content › Voices › download an <b>Enhanced</b> one.</div>
+    </details>
+
+    <details class="sec"><summary>⚙️ More settings</summary>
+      <label for="sPic">Pictures</label><select id="sPic"><option value="auto">Automatic (AI pictures on the website, drawings inside Claude)</option>
+      <option value="pollinations">AI pictures (Pollinations, free, website only)</option>
+      <option value="svg">Tyola's own drawings (works everywhere)</option></select>
+      <label for="sWalk">Walk length: <b id="walkVal"></b></label><input id="sWalk" type="range" min="5" max="60" step="5">
+      <label for="sScreen">Screen</label><select id="sScreen"><option value="full">Full screen</option>
+      <option value="iphone8">iPhone 8 shape (16:9)</option></select>
+      <div class="row" style="margin-top:10px">
+        <button id="bHideBar" type="button">Hide top bar</button>
+        <button id="bClear" type="button">Clear chat</button>
+        <button id="bSfx" type="button">Robot sounds</button>
+      </div>
+      <div class="hint">Ideas to say: “set a timer for 2 minutes”, “what is 7 times 8”, “tell me a fun fact”, “draw a cat astronaut”, “let's go for a walk”. Hidden top bar: tap with two fingers.</div>
+    </details>
   </aside>
 
   <div id="help"><div class="card">
@@ -1596,7 +1577,7 @@ function linkStart(){
   linkUI();
 }
 function linkUI(){
-  $('#bLink').textContent = S.linkOn ? '🖥️ Turn off PC link' : '🖥️ Turn on PC link';
+  $('#bLink').innerHTML = '<span>🖥️</span>' + (S.linkOn ? 'PC: on' : 'PC link'); $('#bLink').classList.toggle('on', S.linkOn);
   $('#linkBox').style.display = S.linkOn ? '' : 'none';
   $('#linkCode').textContent = S.linkCode || '—';
   const url = SITE_OK ? (location.origin + location.pathname.replace(/[^/]*$/,'') + 'pc.html') : 'Tyola website /pc.html (does not work inside the Claude app)';
@@ -1926,7 +1907,7 @@ async function enableMotion(){
     return false;
   }
 }
-function rideUI(){ const b = document.getElementById('bRide'); if (b) b.textContent = S.ride ? '📳 Ride mode: ON (tap to turn off)' : '📳 Ride mode (motion sensor)'; }
+function rideUI(){ const b = document.getElementById('bRide'); if (b){ b.innerHTML = '<span>📳</span>' + (S.ride ? 'Ride: on' : 'Ride'); b.classList.toggle('on', S.ride); } }
 
 async function present(){
   if (presenting) return;
@@ -2070,6 +2051,7 @@ $('#bPlus').onclick = () => {
 };
 const openPanel = v => { $('#panel').classList.toggle('open', v); $('#shade').classList.toggle('open', v); if (v && typeof memUI==='function') memUI(); };
 $('#bMenu').onclick = () => openPanel(true);
+$('#bPanelClose').onclick = () => openPanel(false);
 $('#shade').onclick = () => openPanel(false);
 
 function fillModels(){
