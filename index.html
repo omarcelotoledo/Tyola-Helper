@@ -453,7 +453,7 @@ body.iphone8 #stage{border-radius:0;box-shadow:0 0 0 1px rgba(214,190,255,.18)}
   <div id="shade"></div>
   <aside id="panel">
     <div class="phead">
-      <div><h2>Tyola</h2><div class="sub">say it “Tie-oh-la” · <b id="verLabel">v1.4</b></div></div>
+      <div><h2>Tyola</h2><div class="sub">say it “Tie-oh-la” · <b id="verLabel">v1.5</b></div></div>
       <button id="bPanelClose" type="button" aria-label="Close">✕</button>
     </div>
 
@@ -672,8 +672,10 @@ function memForget(){ MEM = {facts:[], images:[], history:[], lastVersion:MEM.la
 /* ================== VERSÃO E HISTÓRICO DE UPDATES ==================
    A Tyola conhece as próprias atualizações (funciona com ou sem a Tyola+).
    A cada versão nova, coloque um item NO TOPO desta lista. */
-const VERSION = '1.4';
+const VERSION = '1.5';
 const CHANGELOG = [
+  {v:'1.5', en:['a whole new set of sounds: I yawn, giggle, sneeze, gasp and even snore while I sleep','a simpler, prettier menu'],
+            pt:['sons novinhos: eu bocejo, dou risadinha, espirro, levo susto e até ronco enquanto durmo','um menu mais simples e bonito']},
   {v:'1.4', en:['a comfort mode: when you feel sad I can give you a hug, a joke or a breathing game','ride mode: I feel the mBot moving with the motion sensor, and shaking me makes me dizzy','little animations on my own, like yawning, humming and spinning my wrench','four new personalities: shy, pirate, scientist and drama queen','more things I know without AI, like math, fun facts and stories'],
             pt:['um modo consolo: quando você fica triste eu dou um abraço, conto uma piada ou faço um jogo de respirar','modo carrinho: eu sinto o mBot andando pelo sensor de movimento, e se me chacoalhar eu fico tonta','animaçõezinhas sozinha, tipo bocejar, cantarolar e girar minha chave','quatro personalidades novas: tímida, pirata, cientista e dramática','mais coisas que eu sei sem IA, tipo contas, curiosidades e historinhas']},
   {v:'1.3', en:['real AI pictures from Pollinations on my website, even with Tyola plus off','much prettier sticker-style drawings inside the Claude app'],
@@ -1147,8 +1149,196 @@ const esc = s => s.replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"'
 
 /* ================== SONS DE ROBÔ ================== */
 let actx = null;
+/* ================== SONS DA TYOLA (sintetizados, sem arquivos) ==================
+   Camada de áudio separada: cada som é um método que recebe o AudioContext e o instante.
+   Funciona com AudioContext (ao vivo) e OfflineAudioContext (pra gerar prévias em WAV).
+   Ideia: "voz" de robô = oscilador + filtros de formante (vogais) + vibrato; o resto é
+   ruído filtrado (sopro, espirro, whoosh, ronco) e sinos (chimes). */
+const TyolaSFX = (() => {
+  const VOW = { a:[800,1150,2900], o:[460,820,2800], u:[330,720,2500], i:[300,2200,3000], e:[420,1800,2600], m:[260,900,2200] };
+  const FGAIN = [1, .55, .22];
+
+  function master(ctx){
+    if (ctx.__tyMaster) return ctx.__tyMaster;
+    const comp = ctx.createDynamicsCompressor();
+    comp.threshold.value = -18; comp.knee.value = 8; comp.ratio.value = 4; comp.attack.value = .003; comp.release.value = .15;
+    const out = ctx.createGain(); out.gain.value = .9;
+    // eco curtinho (dá "corpo" de desenho animado)
+    const dly = ctx.createDelay(.3); dly.delayTime.value = .085;
+    const fb = ctx.createGain(); fb.gain.value = .18;
+    const wet = ctx.createGain(); wet.gain.value = .16;
+    const inp = ctx.createGain();
+    inp.connect(comp); inp.connect(dly); dly.connect(fb); fb.connect(dly); dly.connect(wet); wet.connect(comp);
+    comp.connect(out); out.connect(ctx.destination);
+    ctx.__tyMaster = inp; return inp;
+  }
+  function noise(ctx){
+    if (ctx.__tyNoise) return ctx.__tyNoise;
+    const b = ctx.createBuffer(1, ctx.sampleRate*2, ctx.sampleRate), d = b.getChannelData(0);
+    for (let i=0;i<d.length;i++) d[i] = Math.random()*2-1;
+    return (ctx.__tyNoise = b);
+  }
+  // curva de valores: pts = [[fração, valor], ...] ao longo de dur
+  function curve(p, t, dur, pts, exp){
+    p.setValueAtTime(pts[0][1], t);
+    for (let k=1;k<pts.length;k++){ const tt = t + pts[k][0]*dur; exp ? p.exponentialRampToValueAtTime(Math.max(1e-4, pts[k][1]), tt) : p.linearRampToValueAtTime(pts[k][1], tt); }
+  }
+  function env(ctx, t, dur, peak, a=.02, r=.1){
+    const g = ctx.createGain(); g.gain.setValueAtTime(0, t);
+    g.gain.linearRampToValueAtTime(peak, t+a);
+    g.gain.setValueAtTime(peak, t + Math.max(a, dur - r));
+    g.gain.linearRampToValueAtTime(0, t + dur); return g;
+  }
+  // "voz": f0 = pontos de altura; vowels = vogais em sequência
+  function voice(ctx, out, t, dur, o){
+    const {f0=[[0,700],[1,700]], vowels=['a'], vib=6, vibDepth=.02, gain=.5, a=.025, r=.09, bright=.25} = o;
+    const osc = ctx.createOscillator(); osc.type = 'sawtooth';
+    const osc2 = ctx.createOscillator(); osc2.type = 'triangle';
+    curve(osc.frequency, t, dur, f0, true); curve(osc2.frequency, t, dur, f0.map(([x,y])=>[x,y*2]), true);
+    const lfo = ctx.createOscillator(); lfo.frequency.value = vib;
+    const lfoG = ctx.createGain(); lfoG.gain.value = f0[0][1]*vibDepth;
+    lfo.connect(lfoG); lfoG.connect(osc.frequency); lfoG.connect(osc2.frequency);
+    const src = ctx.createGain(); osc.connect(src); const o2 = ctx.createGain(); o2.gain.value = bright; osc2.connect(o2); o2.connect(src);
+    const e = env(ctx, t, dur, gain, a, r); const sum = ctx.createGain();
+    for (let f=0; f<3; f++){
+      const bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.Q.value = f===0 ? 7 : 10;
+      vowels.forEach((v,i)=>{ const tt = t + (vowels.length===1 ? 0 : i/(vowels.length-1))*dur; (i===0 ? bp.frequency.setValueAtTime(VOW[v][f], tt) : bp.frequency.linearRampToValueAtTime(VOW[v][f], tt)); });
+      const fg = ctx.createGain(); fg.gain.value = FGAIN[f]*3.2; src.connect(bp); bp.connect(fg); fg.connect(sum);
+    }
+    sum.connect(e); e.connect(out);
+    [osc,osc2,lfo].forEach(n=>{ n.start(t); n.stop(t+dur+.05); });
+  }
+  function hiss(ctx, out, t, dur, {type='bandpass', f=[[0,2000],[1,2000]], Q=1, gain=.3, a=.01, r=.08}){
+    const s = ctx.createBufferSource(); s.buffer = noise(ctx); s.loop = true;
+    const flt = ctx.createBiquadFilter(); flt.type = type; flt.Q.value = Q; curve(flt.frequency, t, dur, f, true);
+    const e = env(ctx, t, dur, gain, a, r); s.connect(flt); flt.connect(e); e.connect(out);
+    s.start(t, Math.random()); s.stop(t+dur+.05);
+  }
+  function tone(ctx, out, t, dur, {type='sine', f=[[0,880],[1,880]], gain=.3, a=.005, r=.08, exp=true}){
+    const o = ctx.createOscillator(); o.type = type; curve(o.frequency, t, dur, f, exp);
+    const e = env(ctx, t, dur, gain, a, r); o.connect(e); e.connect(out); o.start(t); o.stop(t+dur+.05);
+  }
+  function bell(ctx, out, t, f, {gain=.25, decay=.6} = {}){
+    [[1,1],[2.76,.3],[5.4,.12]].forEach(([m,amp])=>{
+      const o = ctx.createOscillator(); o.type = 'sine'; o.frequency.value = f*m;
+      const g = ctx.createGain(); g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(gain*amp, t+.004); g.gain.exponentialRampToValueAtTime(1e-4, t+decay/m**.3);
+      o.connect(g); g.connect(out); o.start(t); o.stop(t+decay+.05);
+    });
+  }
+
+  const S = {
+    yawn(ctx, out, t){ // "haaa... ahh" sonolento + suspiro
+      hiss(ctx, out, t, .5, {type:'lowpass', f:[[0,900],[1,1600]], gain:.10, a:.15, r:.2});
+      voice(ctx, out, t+.15, 1.45, {f0:[[0,480],[.35,700],[.75,520],[1,360]], vowels:['a','a','o'], vib:4.5, vibDepth:.015, gain:.55, a:.18, r:.4});
+      tone(ctx, out, t+1.55, .35, {type:'sine', f:[[0,880],[1,520]], gain:.12, a:.03, r:.2});
+      return 2.0;
+    },
+    hum(ctx, out, t){ // "mm-mm-mm-mmm"
+      [[523,.32],[587,.32],[659,.32],[784,.7]].reduce((tt,[f,d],i)=>{ voice(ctx, out, tt, d, {f0:[[0,f*.98],[.15,f],[1,f]], vowels:['m'], vib: i===3?6:0.1, vibDepth: i===3?.025:0, gain:.6, a:.04, r:.08, bright:.1}); return tt + d + .04; }, t);
+      return 2.0;
+    },
+    sneeze(ctx, out, t){ // "ah... ah... achoo!" + brilhinho
+      voice(ctx, out, t, .22, {f0:[[0,560],[1,690]], vowels:['a'], gain:.38, a:.04, r:.06});
+      voice(ctx, out, t+.34, .26, {f0:[[0,640],[1,820]], vowels:['a'], gain:.45, a:.04, r:.06});
+      hiss(ctx, out, t+.72, .16, {type:'highpass', f:[[0,2500],[1,4000]], gain:.55, a:.005, r:.08});
+      voice(ctx, out, t+.76, .28, {f0:[[0,980],[1,600]], vowels:['i','u'], gain:.55, a:.01, r:.12});
+      [2637,3520,4186].forEach((f,i)=>bell(ctx, out, t+1.08+i*.07, f, {gain:.08, decay:.3}));
+      return 1.5;
+    },
+    dizzy(ctx, out, t){ // tom girando + "woo-oo-oo"
+      const o = ctx.createOscillator(); o.type = 'sine'; curve(o.frequency, t, 1.9, [[0,900],[1,480]], true);
+      const l = ctx.createOscillator(); curve(l.frequency, t, 1.9, [[0,9],[1,3]], true);
+      const lg = ctx.createGain(); lg.gain.value = 220; l.connect(lg); lg.connect(o.frequency);
+      const e = env(ctx, t, 1.9, .22, .05, .3); o.connect(e); e.connect(out); o.start(t); l.start(t); o.stop(t+2); l.stop(t+2);
+      voice(ctx, out, t+.1, 1.6, {f0:[[0,620],[.5,780],[1,420]], vowels:['u','o','u'], vib:5, vibDepth:.09, gain:.32, a:.1, r:.3});
+      return 2.0;
+    },
+    spin(ctx, out, t){ // whoosh + "ting"
+      hiss(ctx, out, t, .55, {type:'bandpass', f:[[0,400],[.5,3200],[1,900]], Q:2.5, gain:.5, a:.05, r:.2});
+      bell(ctx, out, t+.5, 2637, {gain:.18, decay:.5});
+      return 1.0;
+    },
+    hug(ctx, out, t){ // aperto fofinho + "hee-hee"
+      hiss(ctx, out, t, .38, {type:'lowpass', f:[[0,300],[.6,1300],[1,500]], Q:4, gain:.45, a:.06, r:.15});
+      tone(ctx, out, t, .38, {type:'triangle', f:[[0,180],[.6,260],[1,150]], gain:.18, a:.05, r:.15});
+      [0,.17].forEach((d,i)=>voice(ctx, out, t+.55+d, .12, {f0:[[0,1050-i*60],[1,900-i*60]], vowels:['i'], gain:.42, a:.01, r:.05}));
+      return 1.8;
+    },
+    happy(ctx, out, t){ // risadinha "hee-hee-hee!"
+      [[0,900],[.15,860],[.3,960],[.47,1100]].forEach(([d,f])=>voice(ctx, out, t+d, .11, {f0:[[0,f*1.05],[1,f*.92]], vowels:['i','e'], gain:.45, a:.008, r:.05}));
+      [1800,2400].forEach((f,i)=>tone(ctx, out, t+.7+i*.09, .08, {f:[[0,f],[1,f*1.3]], gain:.1}));
+      return 1.4;
+    },
+    sad(ctx, out, t){ // "awww..." caindo + boop
+      voice(ctx, out, t, 1.45, {f0:[[0,660],[.2,620],[1,360]], vowels:['a','o','u'], vib:6.5, vibDepth:.04, gain:.5, a:.06, r:.35});
+      tone(ctx, out, t+1.5, .28, {type:'sine', f:[[0,520],[1,240]], gain:.18, a:.01, r:.15});
+      return 2.0;
+    },
+    surprised(ctx, out, t){ // sopro + "oh!" + ding
+      hiss(ctx, out, t, .14, {type:'highpass', f:[[0,1400],[1,2400]], gain:.22, a:.02, r:.06});
+      voice(ctx, out, t+.08, .24, {f0:[[0,430],[1,880]], vowels:['o'], gain:.55, a:.015, r:.07});
+      bell(ctx, out, t+.32, 2093, {gain:.2, decay:.55});
+      return 1.0;
+    },
+    wake(ctx, out, t){ // liga + 3 sinos + "hm?"
+      const o = ctx.createOscillator(); o.type = 'sawtooth'; curve(o.frequency, t, .85, [[0,110],[1,880]], true);
+      const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; curve(lp.frequency, t, .85, [[0,300],[1,3200]], true);
+      const e = env(ctx, t, .85, .12, .08, .15); o.connect(lp); lp.connect(e); e.connect(out); o.start(t); o.stop(t+.9);
+      [1047,1319,1568].forEach((f,i)=>bell(ctx, out, t+.9+i*.13, f, {gain:.2, decay:.6}));
+      voice(ctx, out, t+1.55, .24, {f0:[[0,520],[1,760]], vowels:['m','e'], gain:.45, a:.03, r:.08});
+      return 2.0;
+    },
+    snore(ctx, out, t){ // "zzz... fweee"
+      hiss(ctx, out, t, 1.1, {type:'lowpass', f:[[0,350],[1,600]], Q:3, gain:.22, a:.4, r:.3});
+      tone(ctx, out, t, 1.1, {type:'sawtooth', f:[[0,70],[1,80]], gain:.06, a:.4, r:.3});
+      const w = ctx.createOscillator(); w.type = 'sine'; curve(w.frequency, t+1.3, .7, [[0,1150],[.5,1550],[1,1050]], true);
+      const l = ctx.createOscillator(); l.frequency.value = 7; const lg = ctx.createGain(); lg.gain.value = 25; l.connect(lg); lg.connect(w.frequency);
+      const e = env(ctx, t+1.3, .7, .09, .12, .25); w.connect(e); e.connect(out); w.start(t+1.3); l.start(t+1.3); w.stop(t+2.05); l.stop(t+2.05);
+      return 2.4;
+    },
+    listen(ctx, out, t){ // dois tons subindo + brilho
+      bell(ctx, out, t, 880, {gain:.2, decay:.45}); bell(ctx, out, t+.11, 1319, {gain:.2, decay:.55});
+      tone(ctx, out, t+.12, .4, {f:[[0,2637],[1,2637]], gain:.04, a:.05, r:.3});
+      return .8;
+    },
+    end(ctx, out, t){ bell(ctx, out, t, 1319, {gain:.16, decay:.35}); bell(ctx, out, t+.1, 880, {gain:.16, decay:.45}); return .6; },
+    alarm(ctx, out, t){ // "ding-ding-ding-ding" de brinquedo + "bip bip!"
+      [0,.17,.34,.51,.8,.97,1.14,1.31].forEach((d,i)=>bell(ctx, out, t+d, i%2 ? 1319 : 1568, {gain:.22, decay:.3}));
+      [1.55,1.72].forEach(d=>tone(ctx, out, t+d, .1, {type:'square', f:[[0,1000],[1,1000]], gain:.07, a:.005, r:.03}));
+      return 2.0;
+    },
+    dance(ctx, out, t){ // jingle animado + "woo!"
+      const b = 60/140/2, notes = [523,659,784,1047,784,1047,1319,1568];
+      notes.forEach((f,i)=>tone(ctx, out, t+i*b, b*.9, {type:'square', f:[[0,f],[1,f]], gain:.06, a:.005, r:.05}));
+      [0,2,4,6].forEach(i=>tone(ctx, out, t+i*b, b*1.6, {type:'triangle', f:[[0,i%4?98:131],[1,i%4?98:131]], gain:.25, a:.005, r:.08}));
+      [2,6].forEach(i=>hiss(ctx, out, t+i*b, .1, {type:'bandpass', f:[[0,1500],[1,1200]], Q:.8, gain:.35, a:.002, r:.07}));
+      voice(ctx, out, t+8*b+.05, .4, {f0:[[0,620],[1,1150]], vowels:['u','o'], gain:.5, a:.02, r:.12});
+      return 3.0;
+    },
+    pop(ctx, out, t){ tone(ctx, out, t, .09, {type:'sine', f:[[0,500],[1,1100]], gain:.22, a:.003, r:.05}); return .2; }
+  };
+
+  // ajuste fino de volume (medido em LUFS) pra todos soarem parecidos
+  const LEVEL = {yawn:.68, hum:.95, sneeze:.82, dizzy:.72, spin:1.2, hug:1.35, happy:1.25, sad:.58, surprised:1.0, wake:1.35, snore:1.5, listen:1.15, end:1.1, alarm:1.45, dance:.92, pop:1};
+
+  return {
+    names: Object.keys(S),
+    // toca o som `kind` no instante t (padrão: agora). Retorna a duração.
+    play(ctx, kind, t){
+      const fn = S[kind]; if (!fn) return 0;
+      const g = ctx.createGain(); g.gain.value = LEVEL[kind] || 1; g.connect(master(ctx));   // volumes equilibrados
+      return fn(ctx, g, t ?? ctx.currentTime + .01);
+    }
+  };
+})();
+
+// nomes antigos → sons novos
+const SFX_MAP = {listen:'listen', end:'end', happy:'happy', sad:'sad', wake:'wake', alarm:'alarm', dance:'dance', pop:'pop',
+                 yawn:'yawn', hum:'hum', sneeze:'sneeze', dizzy:'dizzy', spin:'spin', hug:'hug', surprised:'surprised', snore:'snore'};
 function chirp(kind){
   if (!S.sfx || !actx) return;
+  const k = SFX_MAP[kind];
+  if (k){ try{ TyolaSFX.play(actx, k); st.sfxPlayed = (st.sfxPlayed||0) + 1; return; }catch(e){ st.sfxErr = k + ': ' + e.message; } }
   try{
     const seq = {listen:[[520,.07],[880,.09]], end:[[880,.07],[520,.09]], happy:[[660,.07],[990,.11]],
                  sad:[[440,.12],[330,.18]], wake:[[400,.06],[600,.06],[900,.1]], alarm:[[988,.15],[0,.08],[988,.15],[0,.08],[988,.15],[0,.08],[1319,.3]],
@@ -1786,7 +1976,7 @@ async function act({action, text, pc, drawing, picture}){
     await new Promise(r=>setTimeout(r, Math.max(0, st.danceUntil - performance.now())));
   } else {
     const mood = ['happy','sad','surprised','love','angry','confused'].includes(action) ? action : 'normal';
-    if (mood==='happy') chirp('happy'); if (mood==='sad') chirp('sad'); if (mood==='surprised') chirp('wake');
+    if (mood==='happy') chirp('happy'); if (mood==='sad') chirp('sad'); if (mood==='surprised') chirp('surprised');
     await say(text, {mood, hold: mood==='normal'?0:2600});
   }
   lastInteract = performance.now();
@@ -1813,13 +2003,16 @@ async function walk(){
 }
 function stopWalk(){ walkToken++; walkActive = false; st.walkUntil = 0; }
 
+// ronquinho de vez em quando enquanto dorme
+setInterval(()=>{ if (st.mood==='sleep' && booted && !st.talking) chirp('snore'); }, 7000);
+
 /* ================== ANIMAÇÕES SOZINHA ================== */
 function moodFor(m, ms){ st.mood = m; setTimeout(()=>{ if (st.mood===m && !st.busy) st.mood = 'normal'; }, ms); }
 function idleAnim(type){
   const now = performance.now();
   if (type==='yawn'){ moodFor('yawn', 2200); chirp('yawn'); }
   else if (type==='hum'){ st.humUntil = now + 3500; chirp('hum'); }
-  else if (type==='spin'){ st.spinStart = now; chirp('pop'); }
+  else if (type==='spin'){ st.spinStart = now; chirp('spin'); }
   else if (type==='curious'){ st.lookT.x = -0.95; st.lookHold = now + 700; setTimeout(()=>{ st.lookT.x = 0.95; st.lookHold = performance.now() + 700; }, 650); cur.pop = 1; }
   else if (type==='blush'){ st.blushUntil = now + 2600; moodFor('shy', 2600); }
   else if (type==='sneeze'){ moodFor('sneeze', 700); setTimeout(()=>{ chirp('sneeze'); st.danceUntil = performance.now() + 350; cur.pop = 1; }, 650); }
@@ -1851,7 +2044,7 @@ const JOKES = {
   pt:["Por que o computador foi ao médico? Porque ele estava com vírus!","O que o tomate foi fazer no banco? Tirar extrato!","Por que o livro de matemática ficou triste? Porque tinha muitos problemas.","Qual é o robô mais educado? O ro-bô-m dia!","O que o mar disse pra praia? Nada, só deu tchauzinho com as ondas."]
 };
 function comfortOpen(){ st.comfortUntil = performance.now() + 120000; return {action:'love', text: pick(CL().open)}; }
-async function hugTyola(){ st.hugUntil = performance.now() + 3200; chirp('happy'); await say(pick(CL().hug), {mood:'love', hold:2600}); }
+async function hugTyola(){ st.hugUntil = performance.now() + 3200; chirp('hug'); await say(pick(CL().hug), {mood:'love', hold:2600}); }
 async function breathe(){
   const pt = S.lang==='pt-BR';
   await say(CL().breathe, {mood:'normal', hold:0});
@@ -1885,7 +2078,7 @@ function onMotion(e){
   if (mag > 16){ MOTION.shakes.push(now); MOTION.shakes = MOTION.shakes.filter(x=>now-x<1200);
     if (MOTION.shakes.length >= 4 && st.mood!=='dizzy' && !st.busy){ MOTION.shakes = []; makeDizzy(); return; } }
   // solavanco no carrinho
-  if (S.ride && mag > 9 && mag <= 16 && now - MOTION.lastBump > 2500 && st.mood==='normal' && !st.busy){ MOTION.lastBump = now; moodFor('surprised', 700); chirp('pop'); }
+  if (S.ride && mag > 9 && mag <= 16 && now - MOTION.lastBump > 2500 && st.mood==='normal' && !st.busy){ MOTION.lastBump = now; moodFor('surprised', 700); chirp('surprised'); }
   if (S.ride && rideMoving() && st.mood==='normal' && !st.busy) moodFor('happy', 1500);
 }
 async function makeDizzy(){
@@ -2142,7 +2335,7 @@ document.querySelectorAll('[data-test]').forEach(b => b.onclick = () => {
 });
 
 // estado pra testes automáticos (só leitura)
-window.tyolaState = () => ({busy: st.busy, talking: st.talking, mood: st.mood, ride: S.ride, motion: MOTION.on, level: +MOTION.level.toFixed(2)});
+window.tyolaState = () => ({busy: st.busy, talking: st.talking, mood: st.mood, sfxPlayed: st.sfxPlayed||0, sfxErr: st.sfxErr||'', ride: S.ride, motion: MOTION.on, level: +MOTION.level.toFixed(2)});
 
 /* ================== DESENHOS E MEMÓRIA (tela) ================== */
 function svgUrl(svg){ return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg); }
